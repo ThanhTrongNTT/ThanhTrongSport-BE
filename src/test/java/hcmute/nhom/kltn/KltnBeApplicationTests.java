@@ -1,4 +1,4 @@
-package hcmute.nhom.kltn_be;
+package hcmute.nhom.kltn;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
