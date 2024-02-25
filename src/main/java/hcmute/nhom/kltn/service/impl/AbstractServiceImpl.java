@@ -19,8 +19,6 @@ import hcmute.nhom.kltn.service.AbstractService;
  * Class AbstractServiceImpl.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @Setter
 @Getter

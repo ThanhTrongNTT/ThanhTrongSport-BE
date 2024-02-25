@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
  * Class BaseException.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @Getter
 @Setter

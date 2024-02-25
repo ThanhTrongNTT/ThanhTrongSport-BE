@@ -19,8 +19,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  * Class AbstractAuditModel.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @Getter
 @Setter

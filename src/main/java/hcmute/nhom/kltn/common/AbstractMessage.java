@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +15,6 @@ import hcmute.nhom.kltn.util.Utilities;
  * Class AbstractMessage.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 public class AbstractMessage implements MessageSourceAware {
 
@@ -71,7 +68,7 @@ public class AbstractMessage implements MessageSourceAware {
      * @param blNo  business logic number
      * @param param parameter name
      * @param value parameter value
-     * @return
+     * @return String
      */
     public String getMessageOutputParam(String blNo, String param, Object value) {
         if (Objects.nonNull(value)) {

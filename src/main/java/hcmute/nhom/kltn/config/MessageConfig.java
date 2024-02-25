@@ -10,8 +10,6 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
  * Class MessageConfig.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @Configuration
 public class MessageConfig {

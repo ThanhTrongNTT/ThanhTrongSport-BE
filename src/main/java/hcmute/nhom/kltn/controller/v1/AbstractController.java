@@ -8,8 +8,6 @@ import hcmute.nhom.kltn.common.AbstractMessage;
  * Class AbstractController.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @RestController
 @RequestMapping("api/v1/")

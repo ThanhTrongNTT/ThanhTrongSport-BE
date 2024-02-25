@@ -6,9 +6,7 @@ import java.io.Serializable;
  * Class AbstractModel.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 public class AbstractModel implements Serializable {
-    private static final long serializableVersionUID = 1L;
+    private static final long SERIALIZABLE_VERSION_UID = 1L;
 }

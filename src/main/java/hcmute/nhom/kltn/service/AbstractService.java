@@ -8,8 +8,6 @@ import hcmute.nhom.kltn.model.AbstractModel;
  * Class AbstractService.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 public interface AbstractService<D extends AbstractNonAuditDTO, E extends AbstractModel> {
     /**

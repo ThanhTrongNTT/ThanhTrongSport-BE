@@ -10,8 +10,6 @@ import lombok.Setter;
  * Class AbstractDTO.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @Getter
 @Setter

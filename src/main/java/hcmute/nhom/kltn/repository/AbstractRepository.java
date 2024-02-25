@@ -8,8 +8,6 @@ import org.springframework.data.repository.NoRepositoryBean;
  * Class AbstractRepository.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @NoRepositoryBean
 public interface AbstractRepository<E, ID extends Serializable> extends JpaRepository<E, ID> {
