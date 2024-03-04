@@ -48,10 +48,6 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
         return new CycleAvoidingMappingContext();
     }
 
-    public void setEntity(E entity) {
-        this.entity = entity;
-    }
-
     @Override
     @Transactional
     public D save(D dto) {
