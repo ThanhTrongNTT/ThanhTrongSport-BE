@@ -1,10 +1,15 @@
 package hcmute.nhom.kltn.service.impl;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.common.AbstractMessage;
@@ -14,6 +19,7 @@ import hcmute.nhom.kltn.mapper.AbstractMapper;
 import hcmute.nhom.kltn.mapper.helper.CycleAvoidingMappingContext;
 import hcmute.nhom.kltn.model.AbstractModel;
 import hcmute.nhom.kltn.service.AbstractService;
+import hcmute.nhom.kltn.util.Utilities;
 
 /**
  * Class AbstractServiceImpl.
@@ -84,31 +90,61 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
 
     @Override
     public E save(E entity) {
-        return null;
+        if (entity == null) {
+            throw new SystemErrorException("Save not success. Entity is null");
+        }
+        return getRepository().save(entity);
     }
 
     @Override
     public List<D> save(List<D> dtos) {
-        return null;
+        if (Objects.isNull(dtos) || dtos.isEmpty()) {
+            throw new SystemErrorException("Save not success. DTOs is null");
+        }
+        List<E> entities = dtos.stream().map(item -> getMapper().toEntity(item)).collect(Collectors.toList());
+
+        entities = getRepository().saveAll(entities);
+
+        return entities.stream().map(item -> getMapper().toDto(item)).collect(Collectors.toList());
     }
 
     @Override
     public D findById(String id) {
-        return null;
+        Optional<E> optional = getRepository().findById(id);
+        if (optional.isEmpty()) {
+            throw new SystemErrorException("Not found entity with id: " + id);
+        }
+        return getMapper().toDto(optional.get());
     }
 
     @Override
     public void delete(String id) {
-
+        try {
+            getRepository().deleteById(id);
+        } catch (Exception e) {
+            throw new SystemErrorException("Delete not success. Error: " + e.getMessage());
+        }
     }
 
     @Override
     public void delete(D dto) {
-
+        try {
+            getRepository().delete(getMapper().toEntity(dto));
+        } catch (Exception e) {
+            throw new SystemErrorException("Delete not success. Error: " + e.getMessage());
+        }
     }
 
     @Override
     public List<D> findAll() {
-        return null;
+        List<E> list = getRepository().findAll();
+        return list.stream().map(item -> getMapper().toDto(item)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<D> getPaging(int page, int size, String sortBy, String sortDir) {
+        PageRequest pageRequest = Utilities.getPageRequest(page, size, sortBy, sortDir);
+        Page<E> entities = getRepository().findAll(pageRequest);
+        return entities.map(item -> getMapper().toDto(item));
     }
 }

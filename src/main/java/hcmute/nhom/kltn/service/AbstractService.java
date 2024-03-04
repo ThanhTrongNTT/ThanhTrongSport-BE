@@ -1,6 +1,7 @@
 package hcmute.nhom.kltn.service;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
 import hcmute.nhom.kltn.dto.AbstractNonAuditDTO;
 import hcmute.nhom.kltn.model.AbstractModel;
 
@@ -11,48 +12,55 @@ import hcmute.nhom.kltn.model.AbstractModel;
  **/
 public interface AbstractService<D extends AbstractNonAuditDTO, E extends AbstractModel> {
     /**
-     * Save.
-     * @param dto : dto
+     * Save DTO.
+     * @param dto : D
      * @return D
      */
     D save(D dto);
 
     /**
-     * Save.
-     * @param entity : entity
+     * Save Entity.
+     * @param entity : E
      * @return E
      */
     E save(E entity);
 
     /**
-     * Save.
-     * @param dtos : dtos
+     * Save List DTOs.
+     * @param dtos : List<D>
      * @return List<D>
      */
     List<D> save(List<D> dtos);
 
     /**
-     * Save.
-     * @param id : id
+     * Find DTO By id.
+     * @param id : String
      * @return D
      */
     D findById(String id);
 
     /**
-     * Save.
-     * @param id : id
+     * Delete By Id.
+     * @param id : String
      */
     void delete(String id);
 
     /**
-     * Save.
-     * @param dto : dto
+     * Delete By DTO.
+     * @param dto : D
      */
     void delete(D dto);
 
     /**
-     * Save.
+     * Find All.
      * @return List<D>
      */
     List<D> findAll();
+
+    /**
+     * Get D paging.
+     * @param
+     * @return Page<D>
+     */
+    Page<D> getPaging(int page, int size, String sortBy, String sortDir);
 }
