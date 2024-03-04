@@ -48,28 +48,6 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
         return new CycleAvoidingMappingContext();
     }
 
-    protected D getDto() throws SystemErrorException {
-        if (getMapper() == null) {
-            throw new SystemErrorException("Can not load Mapper");
-        }
-        // Todo: Test before add CycleAvoidingMappingContext
-        // return getMapper().toDto(entity, getCycleAvoidingMappingContext());
-        return getMapper().toDto(entity);
-    }
-
-    protected E getEntity() throws SystemErrorException {
-        if (getMapper() == null) {
-            throw new SystemErrorException("Can not load Mapper");
-        }
-        // Todo: Test before add CycleAvoidingMappingContext
-        // return getMapper().toEntity(dto, getCycleAvoidingMappingContext());
-        return getMapper().toEntity(dto);
-    }
-
-    public void setDTO(D dto) {
-        this.dto = dto;
-    }
-
     public void setEntity(E entity) {
         this.entity = entity;
     }
@@ -80,8 +58,6 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
         if (dto == null) {
             throw new SystemErrorException("Save not success. DTO is null");
         }
-
-        // Todo: Test before add CycleAvoidingMappingContext
         // E item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
         E item = getMapper().toEntity(dto);
         entity = getRepository().save(item);
