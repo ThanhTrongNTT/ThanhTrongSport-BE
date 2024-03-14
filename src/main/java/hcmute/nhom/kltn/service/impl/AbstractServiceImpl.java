@@ -55,9 +55,9 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
             throw new SystemErrorException("Save not success. DTO is null");
         }
         // E item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
-        E item = getMapper().toEntity(dto);
+        E item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
         entity = getRepository().save(item);
-        return getMapper().toDto(entity);
+        return getMapper().toDto(entity, getCycleAvoidingMappingContext());
     }
 
     @Override
@@ -73,11 +73,13 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
         if (Objects.isNull(dtos) || dtos.isEmpty()) {
             throw new SystemErrorException("Save not success. DTOs is null");
         }
-        List<E> entities = dtos.stream().map(item -> getMapper().toEntity(item)).collect(Collectors.toList());
+        List<E> entities = dtos.stream().map(item -> getMapper()
+                .toEntity(item, getCycleAvoidingMappingContext())).collect(Collectors.toList());
 
         entities = getRepository().saveAll(entities);
 
-        return entities.stream().map(item -> getMapper().toDto(item)).collect(Collectors.toList());
+        return entities.stream().map(item -> getMapper()
+                .toDto(item, getCycleAvoidingMappingContext())).collect(Collectors.toList());
     }
 
     @Override
@@ -86,7 +88,7 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
         if (optional.isEmpty()) {
             throw new SystemErrorException("Not found entity with id: " + id);
         }
-        return getMapper().toDto(optional.get());
+        return getMapper().toDto(optional.get(), getCycleAvoidingMappingContext());
     }
 
     @Override
@@ -101,7 +103,7 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
     @Override
     public void delete(D dto) {
         try {
-            getRepository().delete(getMapper().toEntity(dto));
+            getRepository().delete(getMapper().toEntity(dto, getCycleAvoidingMappingContext()));
         } catch (Exception e) {
             throw new SystemErrorException("Delete not success. Error: " + e.getMessage());
         }
@@ -110,13 +112,13 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
     @Override
     public List<D> findAll() {
         List<E> list = getRepository().findAll();
-        return list.stream().map(item -> getMapper().toDto(item)).collect(Collectors.toList());
+        return list.stream().map(item -> getMapper().toDto(item, getCycleAvoidingMappingContext())).collect(Collectors.toList());
     }
 
     @Override
     public Page<D> getPaging(int page, int size, String sortBy, String sortDir) {
         PageRequest pageRequest = Utilities.getPageRequest(page, size, sortBy, sortDir);
         Page<E> entities = getRepository().findAll(pageRequest);
-        return entities.map(item -> getMapper().toDto(item));
+        return entities.map(item -> getMapper().toDto(item, getCycleAvoidingMappingContext()));
     }
 }

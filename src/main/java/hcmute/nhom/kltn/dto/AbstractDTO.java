@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +16,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AbstractDTO extends AbstractNonAuditDTO {
+public class AbstractDTO extends AbstractNonAuditDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     protected String createdBy;
     protected Date createdDate;
