@@ -19,14 +19,20 @@ import lombok.Setter;
 public class OrderDetailDTO extends AbstractDTO {
     private String id;
     private CartDTO cart;
-    private OrderDTO order;
+    private Long total;
     private Boolean removalFlag;
+
+    public Long getTotal() {
+        for (CartDetailDTO cartDetailDTO : cart.getCartDetails()) {
+            this.total += cartDetailDTO.getProduct().getPrice() * cartDetailDTO.getQuantity();
+        }
+        return this.total;
+    }
 
     @Override
     public String toString() {
         return "OrderDetailDTO [id=" + id
                 + ", cart=" + cart
-                + ", order=" + order
                 + ", removalFlag=" + removalFlag + "]";
     }
 }

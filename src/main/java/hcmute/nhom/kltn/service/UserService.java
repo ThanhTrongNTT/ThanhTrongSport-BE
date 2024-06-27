@@ -2,6 +2,7 @@ package hcmute.nhom.kltn.service;
 
 import java.util.List;
 import org.springframework.data.domain.Page;
+import hcmute.nhom.kltn.common.payload.ChangePasswordRequest;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.model.User;
 
@@ -50,6 +51,8 @@ public interface UserService extends AbstractService<UserDTO, User> {
      */
     Boolean activeUser(String email);
 
+    Boolean deactiveUser(String email);
+
     /**
      * changePassword.
      * @param keyword String
@@ -88,4 +91,10 @@ public interface UserService extends AbstractService<UserDTO, User> {
      * @return Boolean
      */
     Boolean checkActiveUser(String email);
+
+    Boolean forgotPassword(String email);
+
+    Boolean changePassword(ChangePasswordRequest changePasswordRequest);
+
+    UserDTO updateUserProfile(String email, UserDTO userDTO);
 }

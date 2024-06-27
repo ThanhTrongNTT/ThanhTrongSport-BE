@@ -6,7 +6,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +25,7 @@ import org.hibernate.annotations.GenericGenerator;
  * @version:
  **/
 @Entity
-@Table(name = "T_PRODUCT")
+@Table(name = "t_product")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -36,29 +38,36 @@ public class Product extends AbstractAuditModel {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name = "PRODUCT_NAME")
+    @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @Column(name = "DESCRIPTION")
+    @Column(name = "description")
     private String description;
 
-    @Column(name = "PRICE")
+    @Column(name = "price", nullable = false)
     private Long price;
 
-    @Column(name = "QUANTITY")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "size_id", referencedColumnName = "id")
+    private Size size;
+
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
     private List<MediaFile> images;
 
-    @Column(name = "PRODUCT_CATEGORY")
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Category> productCategory;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private Category productCategory;
 
-    @Column(name = "REMOVAL_FLAG", nullable = false, length = 1)
+    @OneToOne(mappedBy = "product")
+    private CartDetail cartDetail;
+
+    @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag = false;
 
     @Override
@@ -67,6 +76,8 @@ public class Product extends AbstractAuditModel {
                 + ", productName=" + productName
                 + ", description=" + description
                 + ", price=" + price
+                + ", size=" + size
+                + ", images=" + images
                 + ", quantity=" + quantity
                 + ", removalFlag=" + removalFlag + "]";
     }

@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.controller.v1;
 
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hcmute.nhom.kltn.common.payload.ApiResponse;
 import hcmute.nhom.kltn.dto.CategoryDTO;
 import hcmute.nhom.kltn.service.CategoryService;
+import hcmute.nhom.kltn.util.Constants;
 
 /**
  * Class CategoryController.
@@ -36,13 +38,27 @@ public class CategoryController extends AbstractController {
     @GetMapping("/categories")
     public ResponseEntity<ApiResponse<Page<CategoryDTO>>> getAllCategories(
             HttpServletRequest request,
-            @RequestParam("pageNo") int pageNo,
-            @RequestParam("pageSize") int pageSize,
-            @RequestParam("sortBy") String sortBy,
-            @RequestParam("sortDir") String sortDir
+            @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
+            int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = Constants.DEFAULT_PAGE_SIZE, required = false)
+            int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = Constants.DEFAULT_SORT_BY, required = false)
+            String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = Constants.DEFAULT_SORT_DIRECTION, required = false)
+            String sortDir
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getAllCategories"));
         Page<CategoryDTO> categoryDTOS = categoryService.getPaging(pageNo, pageSize, sortBy, sortDir);
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllCategories"));
+        return ResponseEntity.ok(new ApiResponse<>(true, categoryDTOS, "Get all categories successfully!"));
+    }
+
+    @GetMapping("/categories/list")
+    public ResponseEntity<ApiResponse<List<CategoryDTO>>> getAllCategories(
+            HttpServletRequest request
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "getAllCategories"));
+        List<CategoryDTO> categoryDTOS = categoryService.findAll();
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllCategories"));
         return ResponseEntity.ok(new ApiResponse<>(true, categoryDTOS, "Get all categories successfully!"));
     }
@@ -64,6 +80,7 @@ public class CategoryController extends AbstractController {
             @RequestBody CategoryDTO categoryDTO
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "createCategory"));
+        categoryDTO.setRemovalFlag(false);
         CategoryDTO category = categoryService.save(categoryDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "createCategory"));
         return ResponseEntity.ok(new ApiResponse<>(true, category, "Create category successfully!"));

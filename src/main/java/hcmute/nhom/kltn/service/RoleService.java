@@ -17,12 +17,12 @@ public interface RoleService extends AbstractService<RoleDTO, Role> {
      * @param roleName roleName
      * @return RoleDTO
      */
-    RoleDTO findByRoleName(RoleName roleName);
+    RoleDTO findByRoleName(String roleName);
 
     /**
      * findByName.
      * @param roleName roleName
      * @return Role
      */
-    Role findByName(RoleName roleName);
+    Role findByName(String roleName);
 }

@@ -24,7 +24,7 @@ import org.hibernate.annotations.GenericGenerator;
  * @version:
  **/
 @Entity
-@Table(name = "T_ORDER_DETAIL")
+@Table(name = "t_order_detail")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -34,19 +34,19 @@ public class OrderDetail extends AbstractAuditModel {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private String id;
 
     @NotNull
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CART_ID")
+    @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ORDER_ID")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "orderDetail")
     private Order order;
 
-    @Column(name = "REMOVAL_FLAG", nullable = false, length = 1)
+
+    @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag;
 
 

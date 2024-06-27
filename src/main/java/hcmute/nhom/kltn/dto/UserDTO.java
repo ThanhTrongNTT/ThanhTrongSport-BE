@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -27,6 +28,7 @@ public class UserDTO extends AbstractDTO {
     private String password;
     private Boolean activeFlag;
     private UserProfileDTO userProfile;
+    @JsonIgnore
     private Set<RoleDTO> roles;
     private Boolean removalFlag;
 

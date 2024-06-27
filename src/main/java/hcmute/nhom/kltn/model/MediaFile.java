@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,7 +24,7 @@ import org.hibernate.annotations.GenericGenerator;
  * @version:
  **/
 @Entity
-@Table(name = "T_MEDIA_FILE")
+@Table(name = "t_media_file")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -36,19 +37,23 @@ public class MediaFile extends AbstractAuditModel {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name = "FILE_NAME", nullable = false)
+    @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Column(name = "FILE_TYPE", nullable = false)
+    @Column(name = "file_type", nullable = false)
     private String fileType;
 
-    @Column(name = "URL", nullable = false)
+    @Column(name = "url", nullable = false)
     private String url;
 
-    @Column(name = "REMOVAL_FLAG", nullable = false, length = 1)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
+    private Product product;
+
+    @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag = false;
 
     @Override

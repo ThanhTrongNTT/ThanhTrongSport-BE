@@ -16,4 +16,18 @@ public class Constants {
     public static final boolean REMOVAL_FLAG_FALSE = false;
     public static final boolean REMOVAL_FLAG_TRUE = true;
 
+    public static final String DEFAULT_AVATAR =
+            "https://firebasestorage.googleapis.com/v0/b/kltn-91a43.appspot.com/o/image%2Fdefault-avatar.png?alt=media";
+
+    public static class SEND_MAIL {
+        public final static String CLIENT_FORGET_PASSWORD = "CONFIRM NEW PASSWORD USER";
+
+        public final static String CLIENT_ACTIVE_USER = "CONFIRM ACTIVE USER";
+    }
+
+    public final static class TEMPLATE_FILE_NAME {
+        public final static String CLIENT_FORGET_PASSWORD = "ForgotPassword";
+        public final static String CLIENT_ACTIVE_USER = "ActiveUser";
+    }
+
 }

@@ -9,10 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
@@ -195,6 +197,25 @@ public final class Utilities {
     }
 
     /**
+     * Generate Temp Password.
+     * @param length int
+     * @return String
+     */
+    public static String generateTempPwd(int length) {
+        String numbers = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        char otp[] = new char[length];
+        Random getOtpNum = new Random();
+        for (int i = 0; i < length; i++) {
+            otp[i] = numbers.charAt(getOtpNum.nextInt(numbers.length()));
+        }
+        String optCode = "";
+        for (int i = 0; i < otp.length; i++) {
+            optCode += otp[i];
+        }
+        return optCode;
+    }
+
+    /**
      * Get value by field name from Object.
      * @param obj Object is DTO/Entity
      * @param fieldName
@@ -202,5 +223,15 @@ public final class Utilities {
      */
     public static String getValueByFieldName(Object obj, String fieldName) {
         return Utilities.parseString(getValue(obj, fieldName));
+    }
+
+    /**
+     * Create Pageable.
+     * @param page int
+     * @param size int
+     * @return Pageable
+     */
+    public static Pageable createPageRequestUsing(int page, int size) {
+        return PageRequest.of(page, size);
     }
 }

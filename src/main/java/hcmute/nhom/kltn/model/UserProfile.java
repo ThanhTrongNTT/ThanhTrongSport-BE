@@ -22,7 +22,7 @@ import org.hibernate.annotations.GenericGenerator;
  * @version:
  **/
 @Entity
-@Table(name = "T_USER_PROFILE")
+@Table(name = "t_user_profile")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -36,20 +36,23 @@ public class UserProfile extends AbstractAuditModel {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name = "FIRST_NAME", nullable = false)
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "LAST_NAME", nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
     @OneToOne
-    @JoinColumn(name = "AVATAR_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "avatar_id", referencedColumnName = "id")
     private MediaFile avatar;
 
-    @Column(name = "REMOVAL_FLAG", nullable = false, length = 1)
+    @OneToOne(mappedBy = "userProfile")
+    private User user;
+
+    @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag = false;
 
     private String getFullName() {

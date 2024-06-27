@@ -20,7 +20,7 @@ import hcmute.nhom.kltn.enums.RoleName;
  * @author: ThanhTrong
  **/
 @Entity
-@Table
+@Table(name = "t_role")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,19 +30,19 @@ public class Role extends AbstractAuditModel {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name = "ROLE_NAME")
-    private RoleName roleName;
+    @Column(name = "role_name", unique = true, nullable = false)
+    private String roleName;
 
-    @Column(name = "ADMIN_FLAG")
+    @Column(name = "admin_flag")
     private Boolean adminFlag;
 
     @ManyToMany(mappedBy = "roles")
     private Set<User> users;
 
-    @Column(name = "REMOVAL_FLAG", nullable = false, length = 1)
+    @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag = false;
 
     @Override

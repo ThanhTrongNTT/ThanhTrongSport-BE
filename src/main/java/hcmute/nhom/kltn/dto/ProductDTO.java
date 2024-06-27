@@ -22,9 +22,10 @@ public class ProductDTO extends AbstractDTO {
     private String productName;
     private String description;
     private Long price;
+    private SizeDTO size;
     private Integer quantity;
     private List<MediaFileDTO> images;
-    private List<CategoryDTO> productCategory;
+    private CategoryDTO productCategory;
     private Boolean removalFlag;
 
     @Override
@@ -34,6 +35,7 @@ public class ProductDTO extends AbstractDTO {
                 + ", description=" + description
                 + ", images=" + images
                 + ", price=" + price
+                + ", size=" + size
                 + ", quantity=" + quantity
                 + ", productCategory=" + productCategory
                 + ", removalFlag=" + removalFlag + "]";

@@ -11,4 +11,6 @@ import hcmute.nhom.kltn.model.UserProfile;
  * @version:
  **/
 public interface UserProfileService extends AbstractService<UserProfileDTO, UserProfile> {
+
+    UserProfileDTO findProfileByEmail(String email);
 }

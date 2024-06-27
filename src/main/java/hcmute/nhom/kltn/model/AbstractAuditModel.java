@@ -43,6 +43,6 @@ public abstract class AbstractAuditModel extends AbstractModel {
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column(name = "UPDATED_DATE")
+    @Column(name = "updated_date")
     protected Date modifiedDate;
 }

@@ -20,8 +20,18 @@ import hcmute.nhom.kltn.model.CartDetail;
 @NoArgsConstructor
 public class CartDTO extends AbstractDTO {
     private String id;
+    private UserDTO user;
     private List<CartDetailDTO> cartDetails;
     private Boolean removalFlag;
+    private Long total;
+
+    public Long getTotal() {
+        Long total = 0L;
+        for (CartDetailDTO cartDetail : cartDetails) {
+            total += cartDetail.getProduct().getPrice() * cartDetail.getQuantity();
+        }
+        return total;
+    }
 
     @Override
     public String toString() {

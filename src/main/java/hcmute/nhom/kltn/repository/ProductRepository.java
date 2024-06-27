@@ -3,6 +3,7 @@ package hcmute.nhom.kltn.repository;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.PathVariable;
 import hcmute.nhom.kltn.model.Product;
 
 /**
@@ -17,4 +18,8 @@ public interface ProductRepository extends AbstractRepository<Product, String> {
     @Query(value = "SELECT p FROM Product p"
             + "WHERE p.PRODUCT_NAME LIKE %:keyword% AND REMOVAL_FLAG = 0", nativeQuery = true)
     List<Product> searchProduct(@Param("keyword") String keyword);
+
+    @Query(value = "SELECT * FROM t_product p JOIN t_category c ON c.id = p.category_id "
+            + "WHERE p.removal_flag = 0 AND c.category_name = :categoryName", nativeQuery = true)
+    List<Product> searchProductByCategory(@Param("categoryName") String categoryName);
 }

@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,7 +25,7 @@ import org.hibernate.annotations.GenericGenerator;
  * @version:
  **/
 @Entity
-@Table(name = "T_CART_DETAIL")
+@Table(name = "t_cart_detail")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -34,23 +35,18 @@ public class CartDetail extends AbstractAuditModel {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private String id;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CART_ID")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="cart_id", nullable=false)
     private Cart cart;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User user;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PRODUCT_ID", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "QUANTITY")
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
     private Boolean removalFlag;

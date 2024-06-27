@@ -10,4 +10,6 @@ import hcmute.nhom.kltn.model.MediaFile;
  * @version:
  **/
 public interface MediaFileRepository extends AbstractRepository<MediaFile, String> {
+
+    MediaFile findByFileName(String fileName);
 }

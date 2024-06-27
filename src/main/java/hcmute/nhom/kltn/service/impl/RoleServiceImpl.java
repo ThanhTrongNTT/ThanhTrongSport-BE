@@ -28,23 +28,23 @@ public class RoleServiceImpl extends AbstractServiceImpl<RoleRepository, RoleMap
     private static final String SERVICE_NAME = "RoleService";
     private final RoleRepository roleRepository;
     @Override
-    public RoleDTO findByRoleName(RoleName roleName) {
+    public RoleDTO findByRoleName(String roleName) {
         String method = "FindByRoleName";
         logger.info(getMessageStart(SERVICE_NAME, method));
         Role role = getRepository().findByName(roleName).orElse(null);
-        if (Objects.isNull(role)) {
-            String message = "Role not found";
-            logger.error(message);
-            logger.info(getMessageEnd(SERVICE_NAME, method));
-            throw new NotFoundException(message);
-        }
+//        if (Objects.isNull(role)) {
+//            String message = "Role not found";
+//            logger.error(message);
+//            logger.info(getMessageEnd(SERVICE_NAME, method));
+//            throw new NotFoundException(message);
+//        }
         logger.debug(getMessageOutputParam(SERVICE_NAME, "role", role));
         logger.info(getMessageEnd(SERVICE_NAME, method));
         return getMapper().toDto(role, getCycleAvoidingMappingContext());
     }
 
     @Override
-    public Role findByName(RoleName roleName) {
+    public Role findByName(String roleName) {
         String method = "FindByName";
         logger.info(getMessageStart(SERVICE_NAME, method));
         Role role = getRepository().findByName(roleName).orElse(null);

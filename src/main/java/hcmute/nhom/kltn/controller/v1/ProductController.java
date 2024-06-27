@@ -39,10 +39,14 @@ public class ProductController extends AbstractController {
     public ResponseEntity<ApiResponse<Page<ProductDTO>>> searchProduct(
             HttpServletRequest request,
             @RequestParam("keyword") String keyword,
-            @RequestParam("pageNo") int pageNo,
-            @RequestParam("pageSize") int pageSize,
-            @RequestParam("sortBy") String sortBy,
-            @RequestParam("sortDir") String sortDir
+            @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
+            int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = Constants.DEFAULT_PAGE_SIZE, required = false)
+            int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = Constants.DEFAULT_SORT_BY, required = false)
+            String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = Constants.DEFAULT_SORT_DIRECTION, required = false)
+            String sortDir
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "searchProduct"));
         Page<ProductDTO> productDTOPage = productService.searchProduct(keyword, pageNo, pageSize, sortBy, sortDir);
@@ -64,10 +68,9 @@ public class ProductController extends AbstractController {
             String sortDir
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "searchProductByCategory"));
-        // Todo: Implement searchProductByCategory
-//        Page<ProductDTO> productDTOPage = productService.searchProductByCategory(categoryId, pageNo, pageSize, sortBy, sortDir);
+        Page<ProductDTO> productDTOPage = productService.searchProductByCategory(categoryName, pageNo, pageSize, sortBy, sortDir);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "searchProductByCategory"));
-        return ResponseEntity.ok(new ApiResponse<>(true, null, "Search product by category successfully!"));
+        return ResponseEntity.ok(new ApiResponse<>(true, productDTOPage, "Search product by category successfully!"));
     }
 
     @GetMapping("/products/search-by-price")
@@ -125,20 +128,10 @@ public class ProductController extends AbstractController {
             @RequestBody ProductDTO productDTO
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "createProduct"));
+        productDTO.setRemovalFlag(false);
         ProductDTO product = productService.save(productDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "createProduct"));
         return ResponseEntity.ok(new ApiResponse<>(true, product, "Create product successfully!"));
-    }
-
-    @PostMapping("/products")
-    public ResponseEntity<ApiResponse<List<ProductDTO>>> createProducts(
-            HttpServletRequest request,
-            @RequestBody List<ProductDTO> productDTOs
-    ) {
-        logger.info(getMessageStart(request.getRequestURL().toString(), "createProducts"));
-        List<ProductDTO> products = productService.save(productDTOs);
-        logger.info(getMessageEnd(request.getRequestURL().toString(), "createProducts"));
-        return ResponseEntity.ok(new ApiResponse<>(true, products, "Create products successfully!"));
     }
 
     @PutMapping("/product/{id}")

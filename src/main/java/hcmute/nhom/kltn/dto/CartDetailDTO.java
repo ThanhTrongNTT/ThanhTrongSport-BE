@@ -18,8 +18,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CartDetailDTO extends AbstractDTO {
     private String id;
-    private CartDTO cart;
-    private UserDTO user;
     private ProductDTO product;
     private Integer quantity;
     private Boolean removalFlag;
@@ -27,10 +25,7 @@ public class CartDetailDTO extends AbstractDTO {
     @Override
     public String toString() {
         return "CartDetailDTO [id=" + id
-                + ", cart=" + cart
-                + ", user=" + user
                 + ", product=" + product
-                + ", quantity=" + quantity
                 + ", removalFlag=" + removalFlag + "]";
     }
 }

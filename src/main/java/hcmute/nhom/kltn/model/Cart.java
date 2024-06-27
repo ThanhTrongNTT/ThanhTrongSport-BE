@@ -4,9 +4,13 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +26,7 @@ import org.hibernate.annotations.GenericGenerator;
  * @version:
  **/
 @Entity
-@Table(name = "T_CART")
+@Table(name = "t_cart")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -32,14 +36,32 @@ public class Cart extends AbstractAuditModel {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private String id;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "cart")
     private List<CartDetail> cartDetails;
 
-    @Column(name = "REMOVAL_FLAG", nullable = false, length = 1)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "cart")
+    private OrderDetail orderDetail;
+
+    @Column(name = "total", nullable = false)
+    private Long total;
+
+    @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag;
+
+    public Long getTotal() {
+        Long total = 0L;
+        for (CartDetail cartDetail : cartDetails) {
+            total += cartDetail.getProduct().getPrice() * cartDetail.getQuantity();
+        }
+        return total;
+    }
 
     @Override
     public String toString() {

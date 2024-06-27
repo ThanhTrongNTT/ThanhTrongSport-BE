@@ -101,4 +101,30 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
             throw new SystemErrorException("Error when update product");
         }
     }
+
+    @Override
+    public Page<ProductDTO> searchProductByCategory(String categoryName, int pageNo, int pageSize, String sortBy, String sortDir) {
+        String methodName = "searchProductByCategory";
+        logger.info(getMessageStart(BL_NO, methodName));
+        logger.info(getMessageInputParam(BL_NO, "categoryName", categoryName));
+        logger.info(getMessageInputParam(BL_NO, "pageNo", pageNo));
+        logger.info(getMessageInputParam(BL_NO, "pageSize", pageSize));
+        logger.info(getMessageInputParam(BL_NO, "sortBy", sortBy));
+        logger.info(getMessageInputParam(BL_NO, "sortDir", sortDir));
+        try {
+            List<Product> products = productRepository.searchProductByCategory(categoryName);
+            PageRequest pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
+            List<ProductDTO> productDTOS = products.stream().map(product ->
+                            getMapper().toDto(product, getCycleAvoidingMappingContext()))
+                    .collect(Collectors.toList());
+            Page<ProductDTO> productDTOPage = new PageImpl<>(productDTOS, pageRequest, productDTOS.size());
+            logger.debug(getMessageOutputParam(BL_NO, "productDTOPage", productDTOPage));
+            logger.info(getMessageEnd(BL_NO, methodName));
+            return productDTOPage;
+        } catch (Exception e) {
+            logger.error("Search product by category failed!", e);
+            logger.info(getMessageEnd(BL_NO, methodName));
+            throw new SystemErrorException("Error when search product by category");
+        }
+    }
 }

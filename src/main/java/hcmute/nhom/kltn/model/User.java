@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.model;
 
+import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -24,7 +26,7 @@ import org.hibernate.annotations.GenericGenerator;
  * @author: ThanhTrong
  **/
 @Entity
-@Table(name = "T_USER")
+@Table(name = "t_user")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -38,34 +40,40 @@ public class User extends AbstractAuditModel {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name = "USER_NAME")
+    @Column(name = "user_name", unique = true, nullable = false)
     private String userName;
 
-    @Column(name = "EMAIL", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "PASSWORD", nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "ACTIVE_FLAG", length = 1)
+    @Column(name = "active_flag", length = 1)
     private Boolean activeFlag;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "PROFILE_ID")
+    @OneToOne(cascade = CascadeType.MERGE , fetch = FetchType.EAGER)
+    @JoinColumn(name = "profile_id")
     private UserProfile userProfile;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
-            name = "T_ROLE_TO_USER",
-            joinColumns = @JoinColumn(name = "USER_ID"),
-            inverseJoinColumns = @JoinColumn(name = "ROLE_ID")
+            name = "t_role_to_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
 
-    @Column(name = "REMOVAL_FLAG", length = 1)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Cart> carts;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Order> orders;
+
+    @Column(name = "removal_flag", length = 1)
     private Boolean removalFlag;
 
     @Override

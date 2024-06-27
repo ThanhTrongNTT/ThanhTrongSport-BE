@@ -2,6 +2,7 @@ package hcmute.nhom.kltn.service.impl;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -13,14 +14,23 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import hcmute.nhom.kltn.common.payload.ChangePasswordRequest;
+import hcmute.nhom.kltn.dto.MediaFileDTO;
+import hcmute.nhom.kltn.dto.RoleDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.dto.UserProfileDTO;
+import hcmute.nhom.kltn.email.EmailSender;
+import hcmute.nhom.kltn.enums.RoleName;
 import hcmute.nhom.kltn.exception.SystemErrorException;
 import hcmute.nhom.kltn.mapper.UserMapper;
 import hcmute.nhom.kltn.model.User;
 import hcmute.nhom.kltn.repository.UserRepository;
+import hcmute.nhom.kltn.service.ClientService;
+import hcmute.nhom.kltn.service.MediaFileService;
+import hcmute.nhom.kltn.service.RoleService;
 import hcmute.nhom.kltn.service.UserProfileService;
 import hcmute.nhom.kltn.service.UserService;
+import hcmute.nhom.kltn.util.Utilities;
 
 /**
  * Class UserServiceImpl.
@@ -39,9 +49,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
 
     private final UserProfileService userProfileService;
 
+    private final MediaFileService mediaFileService;
+
     private final UserRepository userRepository;
 
-//    private final RoleService roleService;
+    private final ClientService clientService;
+
+    private final EmailSender emailSender;
+
+    private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -78,21 +94,31 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
             if (Objects.nonNull(user)) {
                 logger.error("User already exists");
                 logger.info(getMessageEnd(SERVICE, methodName));
-                return false;
+                throw new SystemErrorException("User already exists");
             }
-            // TODO: Add role
+            UserProfileDTO userProfileDTO = new UserProfileDTO();
+            userProfileDTO.setRemovalFlag(false);
+            userProfileDTO.setAvatar(mediaFileService.findByFileName("default-avatar.png"));
+            userProfileDTO = userProfileService.save(userProfileDTO);
+            RoleDTO roleUser = roleService.findByRoleName(RoleName.USER.name());
+            userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            userDTO.setUserName(userDTO.getEmail());
             userDTO.setActiveFlag(false);
             userDTO.setRemovalFlag(false);
             userDTO.setCreatedBy(userDTO.getEmail());
             userDTO.setModifiedBy(userDTO.getEmail());
+            userDTO.setRoles(Set.of(roleUser));
+            userDTO.setUserProfile(userProfileDTO);
             save(userDTO);
+            // Execute send email
+            clientService.activeUser(userDTO.getEmail());
             logger.info(getMessageOutputParam(SERVICE, "result", true));
             logger.info(getMessageEnd(SERVICE, methodName));
             return true;
         } catch (Exception e) {
-            logger.error("Error when register user", e);
+            logger.error("Error when register user:", e.getMessage());
             logger.info(getMessageEnd(SERVICE, methodName));
-            throw new SystemErrorException("Error when register user");
+            throw new SystemErrorException(e.getMessage());
         }
     }
 
@@ -132,8 +158,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
                 logger.info(getMessageEnd(SERVICE, methodName));
                 return false;
             }
-            UserProfileDTO userProfileDTO = userProfileService.save(userDTO.getUserProfile());
-            user.setUserProfile(userProfileDTO);
+            user.getUserProfile().setFirstName(userDTO.getUserProfile().getFirstName());
+            user.getUserProfile().setLastName(userDTO.getUserProfile().getLastName());
+            user.getUserProfile().setAvatar(userDTO.getUserProfile().getAvatar());
             save(user);
             logger.debug(getMessageOutputParam(SERVICE, "result", true));
             logger.info(getMessageEnd(SERVICE, methodName));
@@ -171,6 +198,31 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
     }
 
     @Override
+    @Transactional
+    public Boolean deactiveUser(String email) {
+        String methodName = "deactiveUser";
+        logger.info(getMessageStart(SERVICE, methodName));
+        logger.debug(getMessageInputParam(SERVICE, "email", email));
+        try {
+            UserDTO user = findByEmail(email);
+            if (Objects.isNull(user)) {
+                logger.error("User not found");
+                logger.info(getMessageEnd(SERVICE, methodName));
+                return false;
+            }
+            user.setActiveFlag(false);
+            save(user);
+            logger.debug(getMessageOutputParam(SERVICE, "result", true));
+            logger.info(getMessageEnd(SERVICE, methodName));
+            return true;
+        } catch (Exception e) {
+            logger.error("Error when deactive user", e);
+            logger.info(getMessageEnd(SERVICE, methodName));
+            throw new SystemErrorException("Error when adective user");
+        }
+    }
+
+    @Override
     public Page<UserDTO> searchUser(String keyword, int pageNo, int pageSize, String sortBy, String sortDir) {
         String methodName = "searchUser";
         logger.info(getMessageStart(SERVICE, methodName));
@@ -183,7 +235,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
             List<User> list = getRepository().searchUser(keyword);
             List<UserDTO> listDTO = list.stream()
                     .map(item -> getMapper().toDto(item, getCycleAvoidingMappingContext())).collect(Collectors.toList());
-            Pageable pageRequest = createPageRequestUsing(pageNo, pageSize);
+            Pageable pageRequest = Utilities.createPageRequestUsing(pageNo, pageSize);
             logger.debug(getMessageOutputParam(SERVICE, "pageDTO", listDTO));
             logger.info(getMessageEnd(SERVICE, methodName));
             return new PageImpl<>(listDTO, pageRequest, listDTO .size());
@@ -194,10 +246,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
         }
     }
 
-    // Todo: Move to Utilities
-    private Pageable createPageRequestUsing(int page, int size) {
-        return PageRequest.of(page, size);
-    }
 
     @Override
     public List<UserDTO> getAllUser() {
@@ -232,6 +280,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
                     logger.info(getMessageEnd(SERVICE, methodName));
                     return false;
                 }
+                MediaFileDTO mediaFileDTO = mediaFileService.save(userDTO.getUserProfile().getAvatar());
+                user.getUserProfile().setAvatar(mediaFileDTO);
                 UserProfileDTO userProfileDTO = userProfileService.save(userDTO.getUserProfile());
                 user.setUserProfile(userProfileDTO);
                 save(user);
@@ -262,6 +312,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
                 logger.info(getMessageEnd(SERVICE, methodName));
                 return false;
             }
+            mediaFileService.delete(user.getUserProfile().getAvatar());
             user.getUserProfile().setAvatar(null);
             save(user);
             logger.debug(getMessageOutputParam(SERVICE, "result", true));
@@ -293,6 +344,89 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
             logger.error("Error when check active user", e);
             logger.info(getMessageEnd(SERVICE, methodName));
             throw new SystemErrorException("Error when check active user");
+        }
+    }
+
+    @Override
+    public Boolean forgotPassword(String email) {
+        String methodName = "forgotPassword";
+        logger.info(getMessageStart(SERVICE, methodName));
+        logger.debug(getMessageInputParam(SERVICE, "email", email));
+        try {
+            // Find User
+            UserDTO user = findByEmail(email);
+            if (Objects.isNull(user)) {
+                logger.error("User not found");
+                logger.info(getMessageEnd(SERVICE, methodName));
+                throw new SystemErrorException("User not found");
+            }
+            String password = Utilities.generateTempPwd(8);
+            user.setPassword(passwordEncoder.encode(password));
+            save(user);
+            // Execute send email
+            clientService.forgotPassword(user, password);
+            return true;
+        } catch (Exception e) {
+            logger.error("Error when forgot password", e);
+            logger.info(getMessageEnd(SERVICE, methodName));
+            throw new SystemErrorException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Boolean changePassword(ChangePasswordRequest changePasswordRequest) {
+        String methodName = "changePassword";
+        logger.info(getMessageStart(SERVICE, methodName));
+        logger.debug(getMessageInputParam(SERVICE, "changePasswordRequest", changePasswordRequest));
+        try {
+            UserDTO user = findByEmail(changePasswordRequest.getEmail());
+            if (Objects.isNull(user)) {
+                logger.error("User not found");
+                logger.info(getMessageEnd(SERVICE, methodName));
+                return false;
+            }
+            if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
+                logger.error("Old password is incorrect");
+                logger.info(getMessageEnd(SERVICE, methodName));
+                return false;
+            }
+            user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+            save(user);
+            logger.debug(getMessageOutputParam(SERVICE, "result", true));
+            logger.info(getMessageEnd(SERVICE, methodName));
+            return true;
+        } catch (Exception e) {
+            logger.error("Error when change password", e);
+            logger.info(getMessageEnd(SERVICE, methodName));
+            throw new SystemErrorException("Error when change password");
+        }
+    }
+
+    @Override
+    public UserDTO updateUserProfile(String email, UserDTO userDTO) {
+        String methodName = "updateUserProfile";
+        logger.info(getMessageStart(SERVICE, methodName));
+        logger.debug(getMessageInputParam(SERVICE, "email", email));
+        logger.debug(getMessageInputParam(SERVICE, "userDTO", userDTO));
+        try {
+            UserDTO user = findByEmail(email);
+            if (Objects.isNull(user)) {
+                logger.error("User not found");
+                logger.info(getMessageEnd(SERVICE, methodName));
+                throw new SystemErrorException("User not found");
+            }
+            UserProfileDTO userProfileDTO = userProfileService.save(userDTO.getUserProfile());
+            user.setModifiedBy(email);
+            user.setUserName(userDTO.getUserName());
+            user.setUserProfile(userProfileDTO);
+            save(user);
+            logger.debug(getMessageOutputParam(SERVICE, "result", user));
+            logger.info(getMessageEnd(SERVICE, methodName));
+            return user;
+        } catch (Exception e) {
+            logger.error("Error when update user profile", e);
+            logger.info(getMessageEnd(SERVICE, methodName));
+            throw new SystemErrorException("Error when update user profile");
         }
     }
 

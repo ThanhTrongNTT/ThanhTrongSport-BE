@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import hcmute.nhom.kltn.model.MediaFile;
 
 /**
  * Class UserProfileDTO.
@@ -24,7 +23,7 @@ public class UserProfileDTO extends AbstractDTO {
     private MediaFileDTO avatar;
     private Boolean removalFlag;
 
-    private String getFullName() {
+    public String getFullName() {
         return this.firstName + " " + this.lastName;
     }
 

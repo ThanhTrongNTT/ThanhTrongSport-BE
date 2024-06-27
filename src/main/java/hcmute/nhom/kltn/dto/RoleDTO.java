@@ -20,9 +20,8 @@ import hcmute.nhom.kltn.enums.RoleName;
 @AllArgsConstructor
 public class RoleDTO extends AbstractDTO {
     private String id;
-    private RoleName roleName;
+    private String roleName;
     private Boolean adminFlag;
-    private Set<UserDTO> users;
     private Boolean removalFlag;
 
     @Override
