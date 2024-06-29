@@ -1,6 +1,8 @@
 package hcmute.nhom.kltn.service.impl;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -61,6 +63,25 @@ public class SizeServiceImpl
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new SystemErrorException("Update size failed");
+        }
+    }
+
+    @Override
+    public List<SizeDTO> findAllByProductName(String productName) {
+        String methodName = "findAllByProductName";
+        logger.info(getMessageStart(BL_NO, methodName));
+        logger.info(getMessageInputParam(BL_NO, "productName", productName));
+        try {
+            List<Size> sizes = sizeRepository.findAllByProductName(productName);
+            List<SizeDTO> sizeDTOS = sizes.stream().map(size ->
+                            getMapper().toDto(size, getCycleAvoidingMappingContext()))
+                    .collect(Collectors.toList());
+            logger.debug(getMessageOutputParam(BL_NO, "sizeDTOS", sizeDTOS));
+            logger.info(getMessageEnd(BL_NO, methodName));
+            return sizeDTOS;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new SystemErrorException("Find all size by product name failed");
         }
     }
 }

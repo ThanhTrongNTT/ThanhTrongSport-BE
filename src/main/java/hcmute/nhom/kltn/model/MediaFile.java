@@ -3,6 +3,7 @@ package hcmute.nhom.kltn.model;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -49,8 +50,8 @@ public class MediaFile extends AbstractAuditModel {
     @Column(name = "url", nullable = false)
     private String url;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 
     @Column(name = "removal_flag", nullable = false, length = 1)

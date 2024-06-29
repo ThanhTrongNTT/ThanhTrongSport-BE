@@ -47,8 +47,8 @@ public class JwtProvider {
     public JwtAuthenticationResponse createToken(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
-        Date expiryRefreshDate = new Date(now.getTime() + jwtRefreshExpirationInMs);
+        Date expiryDate = new Date(now.getTime() + 180000000);
+        Date expiryRefreshDate = new Date(now.getTime() + 180000000);
         Predicate<GrantedAuthority> filter = item -> item.getAuthority().equals("ADMIN");
         Collection<GrantedAuthority> roles =
                 userPrincipal.getAuthorities().stream().filter(filter).collect(Collectors.toList());

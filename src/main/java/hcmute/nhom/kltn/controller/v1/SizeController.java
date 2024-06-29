@@ -63,6 +63,17 @@ public class SizeController extends AbstractController {
         return ResponseEntity.ok(new ApiResponse<>(true, sizeDTOS, "Get list sizes successfully!"));
     }
 
+    @GetMapping("/sizes/list/{productName}")
+    public ResponseEntity<ApiResponse<List<SizeDTO>>> getAllSizesByProductName(
+            HttpServletRequest request,
+            @PathVariable(value = "productName") String productName
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "getAllSizesByProductName"));
+        List<SizeDTO> sizeDTOS = sizeService.findAllByProductName(productName);
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllSizesByProductName"));
+        return ResponseEntity.ok(new ApiResponse<>(true, sizeDTOS, "Get list sizes by product name successfully!"));
+    }
+
     @GetMapping("/sizes/{id}")
     public ResponseEntity<ApiResponse<SizeDTO>> searchSize(
             HttpServletRequest request,

@@ -18,4 +18,6 @@ public interface ProductService extends AbstractService<ProductDTO, Product> {
     ProductDTO updateProduct(String id, ProductDTO productDTO);
 
     Page<ProductDTO> searchProductByCategory(String categoryName, int pageNo, int pageSize, String sortBy, String sortDir);
+
+    Page<ProductDTO> getList(int pageNo, int pageSize, String sortBy, String sortDir);
 }

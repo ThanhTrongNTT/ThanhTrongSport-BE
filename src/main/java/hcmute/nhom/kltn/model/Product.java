@@ -7,6 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -50,18 +53,19 @@ public class Product extends AbstractAuditModel {
     @Column(name = "price", nullable = false)
     private Long price;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "size_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "size_id")
     private Size size;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.MERGE)
     private List<MediaFile> images;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     private Category productCategory;
 
     @OneToOne(mappedBy = "product")

@@ -111,6 +111,24 @@ public class ProductController extends AbstractController {
         return ResponseEntity.ok(new ApiResponse<>(true, productDTOPage, "Get all product successfully!"));
     }
 
+    @GetMapping("/products/list")
+    public ResponseEntity<ApiResponse<Page<ProductDTO>>> getAllProductList(
+            HttpServletRequest request,
+            @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
+            int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = Constants.DEFAULT_PAGE_SIZE, required = false)
+            int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = Constants.DEFAULT_SORT_BY, required = false)
+            String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = Constants.DEFAULT_SORT_DIRECTION, required = false)
+            String sortDir
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "getAllProduct"));
+        Page<ProductDTO> productDTOPage = productService.getList(pageNo,pageSize, sortBy, sortDir);
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllProduct"));
+        return ResponseEntity.ok(new ApiResponse<>(true, productDTOPage, "Get all product successfully!"));
+    }
+
     @GetMapping("/products/{id}")
     public ResponseEntity<ApiResponse<ProductDTO>> getProductById(
             HttpServletRequest request,

@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -23,6 +24,7 @@ public class ProductDTO extends AbstractDTO {
     private String description;
     private Long price;
     private SizeDTO size;
+    private List<SizeDTO> sizes;
     private Integer quantity;
     private List<MediaFileDTO> images;
     private CategoryDTO productCategory;
