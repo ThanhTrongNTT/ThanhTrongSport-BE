@@ -1,6 +1,7 @@
 package hcmute.nhom.kltn.repository;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import hcmute.nhom.kltn.model.User;
@@ -21,4 +22,6 @@ public interface UserRepository extends AbstractRepository<User, String> {
 
     @Query(value = "SELECT * FROM t_user WHERE email LIKE :keyword OR user_name LIKE :keyword", nativeQuery = true)
     List<User> searchUser(@Param("keyword") String keyword);
+
+    Optional<User> findByEmailIgnoreCaseAndRemovalFlagFalse(@Param("email") String email);
 }

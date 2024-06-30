@@ -42,8 +42,8 @@ public class Category extends AbstractAuditModel {
     private String categoryName;
     @Column(name = "description")
     private String description;
-    @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL)
-    private List<Product> product;
+//    @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL)
+//    private List<Product> product;
     @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag;
 

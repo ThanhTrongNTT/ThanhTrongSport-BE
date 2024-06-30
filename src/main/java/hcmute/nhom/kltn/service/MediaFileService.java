@@ -21,4 +21,6 @@ public interface MediaFileService extends AbstractService<MediaFileDTO, MediaFil
     MediaFileDTO findByFileName(String fileName);
 
     MediaFileDTO getDefaultAvatar();
+
+    Boolean areEqualsTwoList(List<MediaFileDTO> list1, List<MediaFileDTO> list2);
 }

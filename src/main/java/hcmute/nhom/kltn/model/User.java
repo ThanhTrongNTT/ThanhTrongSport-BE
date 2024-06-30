@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -55,8 +56,8 @@ public class User extends AbstractAuditModel {
     @Column(name = "active_flag", length = 1)
     private Boolean activeFlag;
 
-    @OneToOne(cascade = CascadeType.MERGE , fetch = FetchType.EAGER)
-    @JoinColumn(name = "profile_id")
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private UserProfile userProfile;
 
     @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
@@ -68,9 +69,11 @@ public class User extends AbstractAuditModel {
     private Set<Role> roles;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @JsonIgnore
     private List<Cart> carts;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @JsonIgnore
     private List<Order> orders;
 
     @Column(name = "removal_flag", length = 1)

@@ -44,7 +44,8 @@ public class FirebaseStorageService {
         try (InputStream inputStream = resource.getInputStream()) {
             Credentials credentials = GoogleCredentials.fromStream(inputStream);
             Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
-            storage.create(blobInfo, Files.readAllBytes(file.toPath()));
+            byte[] bytes = Files.readAllBytes(file.toPath());
+            storage.create(blobInfo, bytes);
             return getDownloadUrl(file.getName());
         } catch (IOException e) {
             logger.error("Error uploading file to Firebase Storage: {}", e.getMessage());

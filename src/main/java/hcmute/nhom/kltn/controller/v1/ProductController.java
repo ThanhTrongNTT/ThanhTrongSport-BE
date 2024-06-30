@@ -76,8 +76,8 @@ public class ProductController extends AbstractController {
     @GetMapping("/products/search-by-price")
     public ResponseEntity<ApiResponse<Page<ProductDTO>>> searchProductByPrice(
             HttpServletRequest request,
-            @RequestParam("minPrice") double minPrice,
-            @RequestParam("maxPrice") double maxPrice,
+            @RequestParam("minPrice") Long minPrice,
+            @RequestParam("maxPrice") Long maxPrice,
             @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
             int pageNo,
             @RequestParam(value = "pageSize", defaultValue = Constants.DEFAULT_PAGE_SIZE, required = false)
@@ -88,9 +88,9 @@ public class ProductController extends AbstractController {
             String sortDir
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "searchProductByPrice"));
-        // Todo: Implement searchProductByPrice
+        Page<ProductDTO> productDTOPage = productService.searchProductByPrice(minPrice, maxPrice, pageNo, pageSize, sortBy, sortDir);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "searchProductByPrice"));
-        return ResponseEntity.ok(new ApiResponse<>(true, null, "Search product by price successfully!"));
+        return ResponseEntity.ok(new ApiResponse<>(true, productDTOPage, "Search product by price successfully!"));
     }
 
     @GetMapping("/products")

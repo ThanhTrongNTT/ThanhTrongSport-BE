@@ -43,8 +43,8 @@ public class Size extends AbstractAuditModel{
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
-    private List<Product> product;
+//    @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
+//    private List<Product> product;
 
     @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag;

@@ -144,6 +144,30 @@ public class MediaFileServiceImpl
         return mediaFileDTO;
     }
 
+    @Override
+    public Boolean areEqualsTwoList(List<MediaFileDTO> list1, List<MediaFileDTO> list2) {
+        if (Objects.isNull(list1) || Objects.isNull(list2) || list1.size() != list2.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < list1.size(); i++) {
+            MediaFileDTO dto1 = list1.get(i);
+            MediaFileDTO dto2 = list2.get(i);
+            if (!areMediaFileDTOsEqual(dto1, dto2)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean areMediaFileDTOsEqual(MediaFileDTO dto1, MediaFileDTO dto2) {
+        return dto1.getId().equals(dto2.getId()) &&
+                dto1.getFileName().equals(dto2.getFileName()) &&
+                dto1.getFileType().equals(dto2.getFileType()) &&
+                dto1.getUrl().equals(dto2.getUrl());
+    }
+
     private File convertToFile(MultipartFile multipartFile) {
         String method = "ConvertToFile";
         logger.info(getMessageStart(SERVICE_NAME, method));

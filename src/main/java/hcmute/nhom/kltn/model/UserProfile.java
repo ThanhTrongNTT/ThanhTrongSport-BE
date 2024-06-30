@@ -1,7 +1,9 @@
 package hcmute.nhom.kltn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -49,8 +51,8 @@ public class UserProfile extends AbstractAuditModel {
     @JoinColumn(name = "avatar_id", referencedColumnName = "id")
     private MediaFile avatar;
 
-    @OneToOne(mappedBy = "userProfile")
-    private User user;
+//    @OneToOne(mappedBy = "userProfile", fetch = FetchType.LAZY)
+//    private User user;
 
     @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag = false;

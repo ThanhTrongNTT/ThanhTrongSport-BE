@@ -4,6 +4,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -53,7 +54,7 @@ public class Product extends AbstractAuditModel {
     @Column(name = "price", nullable = false)
     private Long price;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "size_id")
     private Size size;
 
@@ -64,12 +65,12 @@ public class Product extends AbstractAuditModel {
     private List<MediaFile> images;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category productCategory;
 
-    @OneToOne(mappedBy = "product")
-    private CartDetail cartDetail;
+//    @OneToOne(mappedBy = "product")
+//    private CartDetail cartDetail;
 
     @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag = false;

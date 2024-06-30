@@ -1,6 +1,7 @@
 package hcmute.nhom.kltn.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.dto.MediaFileDTO;
 import hcmute.nhom.kltn.dto.ProductDTO;
 import hcmute.nhom.kltn.dto.SizeDTO;
@@ -54,6 +56,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
     }
 
     @Override
+    @Transactional
     public ProductDTO save(ProductDTO dto) {
         if (dto == null) {
             throw new SystemErrorException("Save not success. DTO is null");
@@ -100,32 +103,35 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
     }
 
     @Override
+    @Transactional
     public ProductDTO updateProduct(String id, ProductDTO productDTO) {
         String methodName = "updateProduct";
         logger.info(getMessageStart(BL_NO, methodName));
         logger.info(getMessageInputParam(BL_NO, "id", id));
         logger.info(getMessageInputParam(BL_NO, "productDTO", productDTO));
         try {
-            Product product = productRepository.findById(id).orElse(null);
-            if (product == null) {
-                logger.error("Product not found!");
-                logger.info(getMessageEnd(BL_NO, methodName));
+            ProductDTO product = findById(id);
+            if (!mediaFileService.areEqualsTwoList(product.getImages(), productDTO.getImages())) {
+                for (MediaFileDTO mediaFileDTO : productDTO.getImages()) {
+                    mediaFileService.delete(mediaFileDTO.getId());
+                }
+
+                product.setImages(productDTO.getImages());
             }
-            ProductDTO productDTOSave = getMapper().toDto(product, getCycleAvoidingMappingContext());
-            productDTOSave.setProductName(productDTO.getProductName());
-            productDTOSave.setPrice(productDTO.getPrice());
-            productDTOSave.setDescription(productDTO.getDescription());
-            productDTOSave.setImages(productDTO.getImages());
-            productDTOSave.setProductCategory(productDTO.getProductCategory());
-            productDTOSave.setQuantity(productDTO.getQuantity());
-            productDTOSave.setRemovalFlag(productDTO.getRemovalFlag());
-            productDTOSave.setCreatedDate(productDTO.getCreatedDate());
-            productDTOSave.setCreatedBy(productDTO.getCreatedBy());
-            productDTOSave.setModifiedBy(productDTO.getModifiedBy());
-            productDTOSave.setModifiedDate(productDTO.getModifiedDate());
-            save(productDTOSave);
+            product.setProductName(productDTO.getProductName());
+            product.setPrice(productDTO.getPrice());
+            product.setDescription(productDTO.getDescription());
+            product.setProductCategory(productDTO.getProductCategory());
+            product.setSize(productDTO.getSize());
+            product.setQuantity(productDTO.getQuantity());
+            product.setCreatedDate(productDTO.getCreatedDate());
+            product.setCreatedBy(productDTO.getCreatedBy());
+            product.setModifiedBy(productDTO.getModifiedBy());
+            product.setModifiedDate(productDTO.getModifiedDate());
+            product = save(product);
+            logger.debug(getMessageOutputParam(BL_NO, "product", product));
             logger.info(getMessageEnd(BL_NO, methodName));
-            return productDTO;
+            return product;
         } catch (Exception e) {
             logger.error("Update product failed!", e);
             logger.info(getMessageEnd(BL_NO, methodName));
@@ -156,11 +162,17 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         logger.info(getMessageInputParam(BL_NO, "sortBy", sortBy));
         logger.info(getMessageInputParam(BL_NO, "sortDir", sortDir));
         try {
-            List<Product> products = productRepository.searchProductByCategory(categoryName);
+            List<ProductDTO> productDTOS;
+            if (categoryName == "") {
+                productDTOS = findAll();
+            } else {
+                List<Product> products = productRepository.searchProductByCategory(categoryName);
+                productDTOS = products.stream().map(product ->
+                                getMapper().toDto(product, getCycleAvoidingMappingContext()))
+                        .collect(Collectors.toList());
+            }
+
             PageRequest pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
-            List<ProductDTO> productDTOS = products.stream().map(product ->
-                            getMapper().toDto(product, getCycleAvoidingMappingContext()))
-                    .collect(Collectors.toList());
             Page<ProductDTO> productDTOPage = new PageImpl<>(productDTOS, pageRequest, productDTOS.size());
             logger.debug(getMessageOutputParam(BL_NO, "productDTOPage", productDTOPage));
             logger.info(getMessageEnd(BL_NO, methodName));
@@ -169,6 +181,33 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
             logger.error("Search product by category failed!", e);
             logger.info(getMessageEnd(BL_NO, methodName));
             throw new SystemErrorException("Error when search product by category");
+        }
+    }
+
+    @Override
+    public Page<ProductDTO> searchProductByPrice(Long minPrice, Long maxPrice, int pageNo, int pageSize, String sortBy, String sortDir) {
+        String method = "searchProductByPrice";
+        logger.info(getMessageStart(BL_NO, method));
+        logger.debug(getMessageInputParam(BL_NO, "minPrice", minPrice));
+        logger.debug(getMessageInputParam(BL_NO, "maxPrice", maxPrice));
+        logger.debug(getMessageInputParam(BL_NO, "pageNo", pageNo));
+        logger.debug(getMessageInputParam(BL_NO, "pageSize", pageSize));
+        logger.debug(getMessageInputParam(BL_NO, "sortBy", sortBy));
+        logger.debug(getMessageInputParam(BL_NO, "sortDir", sortDir));
+        try {
+            List<Product> products = productRepository.searchProductByPrice(minPrice, maxPrice);
+            PageRequest pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
+            List<ProductDTO> productDTOS = products.stream().map(product ->
+                            getMapper().toDto(product, getCycleAvoidingMappingContext()))
+                    .collect(Collectors.toList());
+            Page<ProductDTO> productDTOPage = new PageImpl<>(productDTOS, pageRequest, productDTOS.size());
+            logger.debug(getMessageOutputParam(BL_NO, "productDTOPage", productDTOPage));
+            logger.info(getMessageEnd(BL_NO, method));
+            return productDTOPage;
+        } catch (Exception e) {
+            logger.error("Search Product by price failed!", e);
+            logger.info(getMessageEnd(BL_NO, method));
+            throw new SystemErrorException(e.getMessage());
         }
     }
 

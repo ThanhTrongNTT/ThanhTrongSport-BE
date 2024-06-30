@@ -123,6 +123,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
     }
 
     @Override
+    @Transactional
     public UserDTO findByEmail(String email) {
         String methodName = "findByEmail";
         logger.info(getMessageStart(SERVICE, methodName));

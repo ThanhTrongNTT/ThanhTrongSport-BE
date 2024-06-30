@@ -22,4 +22,7 @@ public interface ProductRepository extends AbstractRepository<Product, String> {
     @Query(value = "SELECT * FROM t_product p JOIN t_category c ON c.id = p.category_id "
             + "WHERE p.removal_flag = 0 AND c.category_name = :categoryName", nativeQuery = true)
     List<Product> searchProductByCategory(@Param("categoryName") String categoryName);
+
+    @Query(value = "SELECT * FROM t_product WHERE price >= :minPrice AND price <= :maxPrice AND removal_flag = 0 ", nativeQuery = true)
+    List<Product> searchProductByPrice(@Param("minPrice") Long minPice, @Param("maxPrice") Long maxPrice);
 }

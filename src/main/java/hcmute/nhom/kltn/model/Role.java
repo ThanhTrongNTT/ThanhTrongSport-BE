@@ -39,8 +39,8 @@ public class Role extends AbstractAuditModel {
     @Column(name = "admin_flag")
     private Boolean adminFlag;
 
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users;
+//    @ManyToMany(mappedBy = "roles")
+//    private Set<User> users;
 
     @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag = false;
