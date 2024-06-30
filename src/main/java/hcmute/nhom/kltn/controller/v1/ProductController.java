@@ -38,7 +38,7 @@ public class ProductController extends AbstractController {
     @GetMapping("/products/search-by-name")
     public ResponseEntity<ApiResponse<Page<ProductDTO>>> searchProduct(
             HttpServletRequest request,
-            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
             @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
             int pageNo,
             @RequestParam(value = "pageSize", defaultValue = Constants.DEFAULT_PAGE_SIZE, required = false)
@@ -57,7 +57,7 @@ public class ProductController extends AbstractController {
     @GetMapping("/products/search-by-category")
     public ResponseEntity<ApiResponse<Page<ProductDTO>>> searchProductByCategory(
             HttpServletRequest request,
-            @RequestParam("categoryName") String categoryName,
+            @RequestParam(value = "categoryName", defaultValue = "") String categoryName,
             @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
             int pageNo,
             @RequestParam(value = "pageSize", defaultValue = Constants.DEFAULT_PAGE_SIZE, required = false)

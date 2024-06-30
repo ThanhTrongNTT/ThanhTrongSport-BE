@@ -1,11 +1,9 @@
 package hcmute.nhom.kltn.service.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +64,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         entity = getRepository().save(item);
         if (dto.getImages() != null) {
             List<MediaFile> mediaFiles = dto.getImages().stream().map(mediaFileDTO ->
-                    MediaFileMapper.INSTANCE.toEntity(mediaFileDTO, getCycleAvoidingMappingContext()))
+                            MediaFileMapper.INSTANCE.toEntity(mediaFileDTO, getCycleAvoidingMappingContext()))
                     .collect(Collectors.toList());
             for (MediaFile mediaFile : mediaFiles) {
                 mediaFile.setProduct(entity);
@@ -86,11 +84,17 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         logger.info(getMessageInputParam(BL_NO, "sortBy", sortBy));
         logger.info(getMessageInputParam(BL_NO, "sortDir", sortDir));
         try {
-            List<Product> products = productRepository.searchProduct(keyword);
+            List<ProductDTO> productDTOS;
+            if (keyword == "") {
+                productDTOS = findAll();
+            } else {
+                List<Product> products = productRepository.searchProduct(keyword);
+                productDTOS = products.stream().map(product ->
+                                getMapper().toDto(product, getCycleAvoidingMappingContext()))
+                        .collect(Collectors.toList());
+            }
             PageRequest pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
-            List<ProductDTO> productDTOS = products.stream().map(product ->
-                            getMapper().toDto(product, getCycleAvoidingMappingContext()))
-                    .collect(Collectors.toList());
+
             Page<ProductDTO> productDTOPage = new PageImpl<>(productDTOS, pageRequest, productDTOS.size());
             logger.debug(getMessageOutputParam(BL_NO, "productDTOPage", productDTOPage));
             logger.info(getMessageEnd(BL_NO, methodName));
@@ -237,9 +241,9 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
                 Set<String> uniqueSizeIds = new HashSet<>();
                 List<SizeDTO> sizes = new ArrayList<>();
                 for (ProductDTO dto : dtos) {
-                        if (uniqueSizeIds.add(dto.getSize().getId())) {
-                            sizes.add(dto.getSize());
-                        }
+                    if (uniqueSizeIds.add(dto.getSize().getId())) {
+                        sizes.add(dto.getSize());
+                    }
                 }
 
                 ProductDTO finalDto = dtos.get(0);
