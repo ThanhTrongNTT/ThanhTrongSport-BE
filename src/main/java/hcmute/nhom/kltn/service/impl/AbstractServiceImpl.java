@@ -10,6 +10,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.common.AbstractMessage;
@@ -117,7 +118,7 @@ public class AbstractServiceImpl<R extends JpaRepository<E, String>, M extends A
 
     @Override
     public Page<D> getPaging(int page, int size, String sortBy, String sortDir) {
-        PageRequest pageRequest = Utilities.getPageRequest(page, size, sortBy, sortDir);
+        Pageable pageRequest = Utilities.getPageRequest(page, size, sortBy, sortDir);
         Page<E> entities = getRepository().findAll(pageRequest);
         return entities.map(item -> getMapper().toDto(item, getCycleAvoidingMappingContext()));
     }

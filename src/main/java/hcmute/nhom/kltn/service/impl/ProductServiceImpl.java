@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.dto.MediaFileDTO;
@@ -85,7 +86,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         logger.info(getMessageInputParam(BL_NO, "sortDir", sortDir));
         try {
             List<ProductDTO> productDTOS;
-            if (keyword == "") {
+            if (keyword.isEmpty()) {
                 productDTOS = findAll();
             } else {
                 List<Product> products = productRepository.searchProduct(keyword);
@@ -93,9 +94,52 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
                                 getMapper().toDto(product, getCycleAvoidingMappingContext()))
                         .collect(Collectors.toList());
             }
-            PageRequest pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
+            Pageable pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
 
-            Page<ProductDTO> productDTOPage = new PageImpl<>(productDTOS, pageRequest, productDTOS.size());
+            Page<ProductDTO> productDTOPage = Utilities.createPageFromList(productDTOS, pageRequest);
+            logger.debug(getMessageOutputParam(BL_NO, "productDTOPage", productDTOPage));
+            logger.info(getMessageEnd(BL_NO, methodName));
+            return productDTOPage;
+        } catch (Exception e) {
+            logger.error("Search product failed!", e);
+            logger.info(getMessageEnd(BL_NO, methodName));
+            throw new SystemErrorException("Error when forgot password");
+        }
+    }
+
+    @Override
+    public Page<ProductDTO> searchProducts(String keyword, String categoryName, int pageNo, int pageSize, String sortBy, String sortDir) {
+        String methodName = "searchProduct";
+        logger.info(getMessageStart(BL_NO, methodName));
+        logger.info(getMessageInputParam(BL_NO, "keyword", keyword));
+        logger.info(getMessageInputParam(BL_NO, "categoryName", categoryName));
+        logger.info(getMessageInputParam(BL_NO, "pageNo", pageNo));
+        logger.info(getMessageInputParam(BL_NO, "pageSize", pageSize));
+        logger.info(getMessageInputParam(BL_NO, "sortBy", sortBy));
+        logger.info(getMessageInputParam(BL_NO, "sortDir", sortDir));
+        try {
+            List<ProductDTO> productDTOS;
+            if (keyword.isEmpty() && categoryName.isEmpty()) {
+                productDTOS = findAll();
+            } else if(!keyword.isEmpty() && categoryName.isEmpty()) {
+                List<Product> products = productRepository.searchProduct(keyword);
+                productDTOS = products.stream().map(product ->
+                                getMapper().toDto(product, getCycleAvoidingMappingContext()))
+                        .collect(Collectors.toList());
+            } else if (keyword.isEmpty()) {
+                List<Product> products = productRepository.searchProductByCategory(categoryName);
+                productDTOS = products.stream().map(product ->
+                                getMapper().toDto(product, getCycleAvoidingMappingContext()))
+                        .collect(Collectors.toList());
+            } else {
+                List<Product> products = productRepository.searchProductByCategoryAndKeyword(categoryName, keyword);
+                productDTOS = products.stream().map(product ->
+                                getMapper().toDto(product, getCycleAvoidingMappingContext()))
+                        .collect(Collectors.toList());
+            }
+            Pageable pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
+
+            Page<ProductDTO> productDTOPage = Utilities.createPageFromList(productDTOS, pageRequest);
             logger.debug(getMessageOutputParam(BL_NO, "productDTOPage", productDTOPage));
             logger.info(getMessageEnd(BL_NO, methodName));
             return productDTOPage;
@@ -175,9 +219,8 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
                                 getMapper().toDto(product, getCycleAvoidingMappingContext()))
                         .collect(Collectors.toList());
             }
-
-            PageRequest pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
-            Page<ProductDTO> productDTOPage = new PageImpl<>(productDTOS, pageRequest, productDTOS.size());
+            Pageable pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
+            Page<ProductDTO> productDTOPage = Utilities.createPageFromList(productDTOS, pageRequest);
             logger.debug(getMessageOutputParam(BL_NO, "productDTOPage", productDTOPage));
             logger.info(getMessageEnd(BL_NO, methodName));
             return productDTOPage;
@@ -200,11 +243,11 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         logger.debug(getMessageInputParam(BL_NO, "sortDir", sortDir));
         try {
             List<Product> products = productRepository.searchProductByPrice(minPrice, maxPrice);
-            PageRequest pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
+            Pageable pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
             List<ProductDTO> productDTOS = products.stream().map(product ->
                             getMapper().toDto(product, getCycleAvoidingMappingContext()))
                     .collect(Collectors.toList());
-            Page<ProductDTO> productDTOPage = new PageImpl<>(productDTOS, pageRequest, productDTOS.size());
+            Page<ProductDTO> productDTOPage = Utilities.createPageFromList(productDTOS, pageRequest);
             logger.debug(getMessageOutputParam(BL_NO, "productDTOPage", productDTOPage));
             logger.info(getMessageEnd(BL_NO, method));
             return productDTOPage;
@@ -224,7 +267,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         logger.info(getMessageInputParam(BL_NO, "sortBy", sortBy));
         logger.info(getMessageInputParam(BL_NO, "sortDir", sortDir));
         try {
-            PageRequest pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
+            Pageable pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
             List<Product> products = productRepository.findAll();
             List<ProductDTO> productDTOS = products.stream().map(product ->
                             getMapper().toDto(product, getCycleAvoidingMappingContext()))
@@ -251,7 +294,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
                 finalProductDTOs.add(finalDto);
             }
 
-            Page<ProductDTO> productDTOPage = new PageImpl<>(finalProductDTOs, pageRequest, finalProductDTOs.size());
+            Page<ProductDTO> productDTOPage = Utilities.createPageFromList(productDTOS, pageRequest);
             logger.debug(getMessageOutputParam(BL_NO, "productDTOPage", productDTOPage));
             logger.info(getMessageEnd(BL_NO, methodName));
             return productDTOPage;

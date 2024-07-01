@@ -35,6 +35,26 @@ public class ProductController extends AbstractController {
         this.productService = productService;
     }
 
+    @GetMapping("/products/search-products")
+    public ResponseEntity<ApiResponse<Page<ProductDTO>>> searchProducts(
+            HttpServletRequest request,
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @RequestParam(value = "categoryName", defaultValue = "") String categoryName,
+            @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
+            int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = Constants.DEFAULT_PAGE_SIZE, required = false)
+            int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = Constants.DEFAULT_SORT_BY, required = false)
+            String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = Constants.DEFAULT_SORT_DIRECTION, required = false)
+            String sortDir
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "searchProduct"));
+        Page<ProductDTO> productDTOPage = productService.searchProducts(keyword, categoryName, pageNo, pageSize, sortBy, sortDir);
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "searchProduct"));
+        return ResponseEntity.ok(new ApiResponse<>(true, productDTOPage, "Search product successfully!"));
+    }
+
     @GetMapping("/products/search-by-name")
     public ResponseEntity<ApiResponse<Page<ProductDTO>>> searchProduct(
             HttpServletRequest request,

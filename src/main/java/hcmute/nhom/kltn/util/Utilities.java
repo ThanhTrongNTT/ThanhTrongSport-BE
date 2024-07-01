@@ -2,9 +2,11 @@ package hcmute.nhom.kltn.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,8 @@ import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -93,10 +97,45 @@ public final class Utilities {
      * @param sortDir  Sort direction
      * @return PageRequest
      */
-    public static PageRequest getPageRequest(int pageNo, int pageSize, String sortBy, String sortDir) {
+    public static Pageable getPageRequest(int pageNo, int pageSize, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
         return PageRequest.of(pageNo, pageSize, sort);
+    }
+
+    public static <T> Page<T> createPageFromList(List<T> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), list.size());
+
+        if (pageable.getSort().isSorted()) {
+            Comparator<T> comparator = null;
+            for (Sort.Order order : pageable.getSort()) {
+                Comparator<T> orderComparator = Comparator.comparing(item -> {
+                    try {
+                        Method getter = item.getClass().getMethod("get" + capitalize(order.getProperty()));
+                        return (Comparable) getter.invoke(item);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+                if (order.getDirection() == Sort.Direction.DESC) {
+                    orderComparator = orderComparator.reversed();
+                }
+
+                comparator = comparator == null ? orderComparator : comparator.thenComparing(orderComparator);
+            }
+            list.sort(comparator);
+        }
+
+        return new PageImpl<>(list, pageable, list.size());
+    }
+
+    private static String capitalize(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     /**
