@@ -128,7 +128,7 @@ public final class Utilities {
             list.sort(comparator);
         }
 
-        return new PageImpl<>(list, pageable, list.size());
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 
     private static String capitalize(String str) {
