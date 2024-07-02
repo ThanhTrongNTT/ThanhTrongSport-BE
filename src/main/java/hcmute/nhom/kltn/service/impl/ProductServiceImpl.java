@@ -146,7 +146,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         } catch (Exception e) {
             logger.error("Search product failed!", e);
             logger.info(getMessageEnd(BL_NO, methodName));
-            throw new SystemErrorException("Error when forgot password");
+            throw new SystemErrorException(e.getMessage());
         }
     }
 
