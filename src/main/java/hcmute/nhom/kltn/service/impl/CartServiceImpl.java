@@ -2,17 +2,20 @@ package hcmute.nhom.kltn.service.impl;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.dto.CartDTO;
 import hcmute.nhom.kltn.dto.CartDetailDTO;
-import hcmute.nhom.kltn.dto.ProductDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.exception.SystemErrorException;
+import hcmute.nhom.kltn.mapper.CartDetailMapper;
 import hcmute.nhom.kltn.mapper.CartMapper;
 import hcmute.nhom.kltn.model.Cart;
+import hcmute.nhom.kltn.model.CartDetail;
 import hcmute.nhom.kltn.repository.CartRepository;
 import hcmute.nhom.kltn.service.CartDetailService;
 import hcmute.nhom.kltn.service.CartService;
@@ -65,6 +68,37 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
     }
 
     @Override
+    @Transactional
+    public CartDTO save(CartDTO dto) {
+        if (dto == null) {
+            throw new SystemErrorException("Save not success. DTO is null");
+        }
+        // E item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
+        Cart item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
+        entity = getRepository().save(item);
+        if (dto.getCartDetails() != null) {
+            List<CartDetail> cartDetails = dto.getCartDetails().stream().map(cartDetailDTO ->
+                            CartDetailMapper.INSTANCE.toEntity(cartDetailDTO, getCycleAvoidingMappingContext()))
+                    .collect(Collectors.toList());
+            for (CartDetail cartDetail : cartDetails) {
+                for (CartDetail cartDetail1 : entity.getCartDetails()) {
+                    if (!cartDetail.getProduct().getId()
+                            .equals(cartDetail1.getProduct().getId())) {
+                        cartDetail.setCart(entity);
+                        cartDetail.setRemovalFlag(false);
+                        cartDetailService.save(cartDetail);
+                    } else {
+                        cartDetail1.setQuantity(cartDetail.getQuantity());
+                        cartDetailService.save(cartDetail1);
+                    }
+                }
+            }
+        }
+        return getMapper().toDto(entity, getCycleAvoidingMappingContext());
+    }
+
+    @Override
+    @Transactional
     public CartDTO addToCart(String email, CartDetailDTO cartDetailDTO) {
         String method = "addToCart";
         logger.info(getMessageStart(BL_NO, method));
@@ -75,8 +109,6 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
             CartDTO oldCart = getCartByUser(email);
             if (Objects.isNull(oldCart)) {
                 // First Item add to cart
-                cartDetailDTO.setRemovalFlag(false);
-                cartDetailDTO = cartDetailService.save(cartDetailDTO);
                 UserDTO userDTO = userService.findByEmail(email);
                 CartDTO cartDTO = new CartDTO();
                 cartDTO.setCartDetails(List.of(cartDetailDTO));
@@ -89,7 +121,6 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
             }
             // Add to cart
             cartDetailDTO.setRemovalFlag(false);
-            cartDetailDTO = cartDetailService.save(cartDetailDTO);
             oldCart.getCartDetails().add(cartDetailDTO);
             oldCart = save(oldCart);
             logger.debug(getMessageOutputParam(BL_NO, "cartDTO", oldCart));

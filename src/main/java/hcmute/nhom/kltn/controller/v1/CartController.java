@@ -65,15 +65,15 @@ public class CartController extends AbstractController {
     }
 
     @PostMapping("/cart/{email}/add")
-    public ResponseEntity<ApiResponse<Boolean>> addToCart(
+    public ResponseEntity<ApiResponse<CartDTO>> addToCart(
             HttpServletRequest request,
             @PathVariable("email") String email,
             @RequestBody CartDetailDTO cartDetailDTO
             ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "addToCart"));
-        cartService.addToCart(email, cartDetailDTO);
+        CartDTO result = cartService.addToCart(email, cartDetailDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "addToCart"));
-        return ResponseEntity.ok(new ApiResponse<>(true, true, "Add to cart successfully!"));
+        return ResponseEntity.ok(new ApiResponse<>(true, result, "Add to cart successfully!"));
     }
 
     @PostMapping("/cart/{email}/update")

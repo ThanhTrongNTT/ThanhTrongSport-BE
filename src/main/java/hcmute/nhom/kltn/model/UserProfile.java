@@ -1,6 +1,7 @@
 package hcmute.nhom.kltn.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -46,6 +47,9 @@ public class UserProfile extends AbstractAuditModel {
 
     @Column(name = "last_name")
     private String lastName;
+
+    @Column
+    private Date birthDate;
 
     @OneToOne
     @JoinColumn(name = "avatar_id", referencedColumnName = "id")

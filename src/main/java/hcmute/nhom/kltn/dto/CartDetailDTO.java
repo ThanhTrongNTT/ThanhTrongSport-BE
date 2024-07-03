@@ -20,6 +20,7 @@ public class CartDetailDTO extends AbstractDTO {
     private String id;
     private ProductDTO product;
     private Integer quantity;
+    private CartDTO cart;
     private Boolean removalFlag;
 
     @Override

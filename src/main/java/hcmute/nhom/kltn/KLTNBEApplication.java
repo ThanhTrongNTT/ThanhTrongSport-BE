@@ -12,12 +12,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.dto.MediaFileDTO;
 import hcmute.nhom.kltn.dto.RoleDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.dto.UserProfileDTO;
 import hcmute.nhom.kltn.enums.RoleName;
-import hcmute.nhom.kltn.repository.RoleRepository;
 import hcmute.nhom.kltn.service.MediaFileService;
 import hcmute.nhom.kltn.service.RoleService;
 import hcmute.nhom.kltn.service.UserProfileService;
@@ -35,6 +35,7 @@ public class KLTNBEApplication {
     }
 
     @Bean
+    @Transactional
     CommandLineRunner runner(
             UserService userService, PasswordEncoder passwordEncoder, RoleService roleService,
             UserProfileService userProfileService, MediaFileService mediaFileService) {

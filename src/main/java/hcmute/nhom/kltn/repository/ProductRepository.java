@@ -16,11 +16,11 @@ import hcmute.nhom.kltn.model.Product;
 public interface ProductRepository extends AbstractRepository<Product, String> {
 
     @Query(value = "SELECT * FROM t_product "
-            + "WHERE product_name LIKE %:keyword% AND removal_flag = 0", nativeQuery = true)
+            + "WHERE LOWER(product_name) LIKE :keyword AND removal_flag = 0", nativeQuery = true)
     List<Product> searchProduct(@Param("keyword") String keyword);
 
     @Query(value = "SELECT * FROM t_product p JOIN t_category c ON c.id = p.category_id "
-            + "WHERE p.removal_flag = 0 AND c.category_name = :categoryName AND p.product_name LIKE %:keyword%", nativeQuery = true)
+            + "WHERE p.removal_flag = 0 AND c.category_name = :categoryName AND LOWER(p.product_name) LIKE :keyword", nativeQuery = true)
     List<Product> searchProductByCategoryAndKeyword(@Param("categoryName") String categoryName, @Param("keyword") String keyword);
 
     @Query(value = "SELECT * FROM t_product p JOIN t_category c ON c.id = p.category_id "

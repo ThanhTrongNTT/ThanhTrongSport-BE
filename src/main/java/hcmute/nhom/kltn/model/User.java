@@ -68,7 +68,7 @@ public class User extends AbstractAuditModel {
     )
     private Set<Role> roles;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE)
     @JsonIgnore
     private List<Cart> carts;
 

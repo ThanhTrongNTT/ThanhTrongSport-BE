@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.dto;
 
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class UserProfileDTO extends AbstractDTO {
     private String id;
     private String firstName;
     private String lastName;
+    private Date birthDate;
     private MediaFileDTO avatar;
     private Boolean removalFlag;
 

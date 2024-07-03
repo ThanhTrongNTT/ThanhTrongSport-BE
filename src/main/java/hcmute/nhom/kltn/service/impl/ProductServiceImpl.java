@@ -122,7 +122,8 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
             if (keyword.isEmpty() && categoryName.isEmpty()) {
                 productDTOS = findAll();
             } else if(!keyword.isEmpty() && categoryName.isEmpty()) {
-                List<Product> products = productRepository.searchProduct(keyword);
+                String searchKeyword = "%" + keyword.toLowerCase() + "%";
+                List<Product> products = productRepository.searchProduct(searchKeyword);
                 productDTOS = products.stream().map(product ->
                                 getMapper().toDto(product, getCycleAvoidingMappingContext()))
                         .collect(Collectors.toList());
@@ -132,7 +133,8 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
                                 getMapper().toDto(product, getCycleAvoidingMappingContext()))
                         .collect(Collectors.toList());
             } else {
-                List<Product> products = productRepository.searchProductByCategoryAndKeyword(categoryName, keyword);
+                String searchKeyword = "%" + keyword.toLowerCase() + "%";
+                List<Product> products = productRepository.searchProductByCategoryAndKeyword(categoryName, searchKeyword);
                 productDTOS = products.stream().map(product ->
                                 getMapper().toDto(product, getCycleAvoidingMappingContext()))
                         .collect(Collectors.toList());
