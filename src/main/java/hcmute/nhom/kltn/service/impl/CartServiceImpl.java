@@ -55,7 +55,7 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
         logger.debug(getMessageInputParam(BL_NO, "email", email));
         checkInputParamGetCartByUser(email);
         try {
-            Cart cart = getRepository().getCartByUser(email);
+            Cart cart = cartRepository.getCartByUser(email);
             CartDTO cartDTO = getMapper().toDto(cart, getCycleAvoidingMappingContext());
             logger.debug(getMessageOutputParam(BL_NO, "cartDTO", cartDTO));
             logger.info(getMessageEnd(BL_NO, method));
@@ -81,15 +81,19 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
                             CartDetailMapper.INSTANCE.toEntity(cartDetailDTO, getCycleAvoidingMappingContext()))
                     .collect(Collectors.toList());
             for (CartDetail cartDetail : cartDetails) {
+                cartDetail.setCart(entity);
                 for (CartDetail cartDetail1 : entity.getCartDetails()) {
+                    // New Product
                     if (!cartDetail.getProduct().getId()
                             .equals(cartDetail1.getProduct().getId())) {
-                        cartDetail.setCart(entity);
                         cartDetail.setRemovalFlag(false);
                         cartDetailService.save(cartDetail);
-                    } else {
-                        cartDetail1.setQuantity(cartDetail.getQuantity());
-                        cartDetailService.save(cartDetail1);
+                    } else { // old Product
+                        cartDetail.setQuantity(cartDetail1.getQuantity() + cartDetail.getQuantity());
+                        if (cartDetail1.getQuantity() > cartDetail1.getProduct().getQuantity()) {
+                            throw new SystemErrorException("Quantity is over!");
+                        }
+                        cartDetailService.save(cartDetail);
                     }
                 }
             }

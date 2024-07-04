@@ -77,8 +77,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/v1/categories/**").permitAll()
                 .antMatchers("/api/v1/media/**").permitAll()
                 .antMatchers("/api/v1/colors/**").permitAll()
-                .antMatchers("/api/v1/sizes/**").permitAll()
                 .anyRequest().authenticated()
+//                .antMatchers("/api/v1/sizes/**").permitAll()
                 .and().exceptionHandling()
                 .authenticationEntryPoint(jwtEntryPoint)
                 //Tất cả các request khác đều được phải xác thực trước khi truy cập
