@@ -76,25 +76,38 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
         // E item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
         Cart item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
         entity = getRepository().save(item);
-        if (dto.getCartDetails() != null) {
+        if (Objects.nonNull(dto.getCartDetails())) {
             List<CartDetail> cartDetails = dto.getCartDetails().stream().map(cartDetailDTO ->
                             CartDetailMapper.INSTANCE.toEntity(cartDetailDTO, getCycleAvoidingMappingContext()))
                     .collect(Collectors.toList());
+            // Duyệt qua từng CartDetail từ DTO
             for (CartDetail cartDetail : cartDetails) {
                 cartDetail.setCart(entity);
-                for (CartDetail cartDetail1 : entity.getCartDetails()) {
-                    // New Product
-                    if (!cartDetail.getProduct().getId()
-                            .equals(cartDetail1.getProduct().getId())) {
-                        cartDetail.setRemovalFlag(false);
-                        cartDetailService.save(cartDetail);
-                    } else { // old Product
-                        cartDetail.setQuantity(cartDetail1.getQuantity() + cartDetail.getQuantity());
-                        if (cartDetail1.getQuantity() > cartDetail1.getProduct().getQuantity()) {
+                boolean found = false;
+
+                // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
+                for (CartDetail existingCartDetail : entity.getCartDetails()) {
+                    if (cartDetail.getProduct().getId().equals(existingCartDetail.getProduct().getId())) {
+                        // Nếu tồn tại, tăng quantity
+                        int newQuantity = existingCartDetail.getQuantity() + cartDetail.getQuantity();
+
+                        // Kiểm tra xem số lượng mới có vượt quá số lượng tồn kho không
+                        if (newQuantity > cartDetail.getProduct().getQuantity()) {
                             throw new SystemErrorException("Quantity is over!");
                         }
-                        cartDetailService.save(cartDetail);
+
+                        existingCartDetail.setQuantity(newQuantity);
+                        cartDetailService.save(existingCartDetail);
+                        found = true;
+                        break;
                     }
+                }
+
+                // Nếu sản phẩm chưa tồn tại trong giỏ hàng, thêm mới sản phẩm
+                if (!found) {
+                    cartDetail.setRemovalFlag(false);
+                    cartDetailService.save(cartDetail);
+                    entity.getCartDetails().add(cartDetail);
                 }
             }
         }
