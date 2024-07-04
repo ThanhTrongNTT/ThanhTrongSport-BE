@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -76,39 +77,19 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
         // E item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
         Cart item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
         entity = getRepository().save(item);
+
         if (Objects.nonNull(dto.getCartDetails())) {
+            // Chuyển đổi CartDetailDTO thành CartDetail
             List<CartDetail> cartDetails = dto.getCartDetails().stream().map(cartDetailDTO ->
                             CartDetailMapper.INSTANCE.toEntity(cartDetailDTO, getCycleAvoidingMappingContext()))
                     .collect(Collectors.toList());
-            // Duyệt qua từng CartDetail từ DTO
+
+            // Lưu các chi tiết giỏ hàng vào cơ sở dữ liệu
             for (CartDetail cartDetail : cartDetails) {
                 cartDetail.setCart(entity);
-                boolean found = false;
-
-                // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
-                for (CartDetail existingCartDetail : entity.getCartDetails()) {
-                    if (cartDetail.getProduct().getId().equals(existingCartDetail.getProduct().getId())) {
-                        // Nếu tồn tại, tăng quantity
-                        int newQuantity = existingCartDetail.getQuantity() + cartDetail.getQuantity();
-
-                        // Kiểm tra xem số lượng mới có vượt quá số lượng tồn kho không
-                        if (newQuantity > cartDetail.getProduct().getQuantity()) {
-                            throw new SystemErrorException("Quantity is over!");
-                        }
-
-                        cartDetail.setQuantity(newQuantity);
-                        cartDetailService.save(cartDetail);
-                        found = true;
-                        break;
-                    }
-                }
-
-                // Nếu sản phẩm chưa tồn tại trong giỏ hàng, thêm mới sản phẩm
-                if (!found) {
-                    cartDetail.setRemovalFlag(false);
-                    cartDetailService.save(cartDetail);
-                    entity.getCartDetails().add(cartDetail);
-                }
+                cartDetail.setRemovalFlag(false);
+                cartDetail = cartDetailService.save(cartDetail);
+                entity.getCartDetails().add(cartDetail);
             }
         }
         return getMapper().toDto(entity, getCycleAvoidingMappingContext());
@@ -136,9 +117,33 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
                 logger.info(getMessageEnd(BL_NO, method));
                 return cartDTO;
             }
+
             // Add to cart
             cartDetailDTO.setRemovalFlag(false);
-            oldCart.getCartDetails().add(cartDetailDTO);
+            boolean found = false;
+
+            // Check if product already exists in cart
+            for (CartDetailDTO existingCartDetail : oldCart.getCartDetails()) {
+                if (existingCartDetail.getProduct().getId().equals(cartDetailDTO.getProduct().getId())) {
+                    // If exists, increment quantity
+                    int newQuantity = existingCartDetail.getQuantity() + cartDetailDTO.getQuantity();
+
+                    // Check if new quantity exceeds available stock
+                    if (newQuantity > cartDetailDTO.getProduct().getQuantity()) {
+                        throw new SystemErrorException("Quantity is over!");
+                    }
+
+                    existingCartDetail.setQuantity(newQuantity);
+                    found = true;
+                    break;
+                }
+            }
+
+            // If product does not exist in cart, add new CartDetail
+            if (!found) {
+                oldCart.getCartDetails().add(cartDetailDTO);
+            }
+
             oldCart = save(oldCart);
             logger.debug(getMessageOutputParam(BL_NO, "cartDTO", oldCart));
             logger.info(getMessageEnd(BL_NO, method));
