@@ -96,8 +96,8 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
                             throw new SystemErrorException("Quantity is over!");
                         }
 
-                        existingCartDetail.setQuantity(newQuantity);
-                        cartDetailService.save(existingCartDetail);
+                        cartDetail.setQuantity(newQuantity);
+                        cartDetailService.save(cartDetail);
                         found = true;
                         break;
                     }
