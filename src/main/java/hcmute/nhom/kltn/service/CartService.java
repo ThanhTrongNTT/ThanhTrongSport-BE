@@ -18,11 +18,11 @@ public interface CartService extends AbstractService<CartDTO, Cart> {
 
     CartDTO addToCart(String email, CartDetailDTO cartDetailDTO);
 
-    CartDTO updateCart(String email, CartDTO cartDTO);
+    CartDetailDTO updateCartDetail(CartDetailDTO cartDetailDTO);
 
     CartDTO addToCartGuest(CartDetailDTO cartDetailDTO);
 
     CartDTO updateCartGuest(String id, CartDTO cartDTO);
 
-    Boolean deleteCartDetail(String email, String id);
+    Boolean deleteCartDetail(String id);
 }

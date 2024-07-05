@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -76,17 +77,16 @@ public class CartController extends AbstractController {
         return ResponseEntity.ok(new ApiResponse<>(true, result, "Add to cart successfully!"));
     }
 
-    @PostMapping("/cart/{email}/update")
-    public ResponseEntity<ApiResponse<CartDTO>> updateCart(
+    @PostMapping("/cart/update")
+    public ResponseEntity<ApiResponse<CartDetailDTO>> updateCart(
             HttpServletRequest request,
-            @PathVariable("email") String email,
-            @RequestBody CartDTO cartDTO
+            @RequestBody CartDetailDTO cartDetailDTO
 
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "addToCart"));
-        cartDTO = cartService.updateCart(email, cartDTO);
+        cartDetailDTO = cartService.updateCartDetail(cartDetailDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "addToCart"));
-        return ResponseEntity.ok(new ApiResponse<>(true, cartDTO, "Add to cart successfully!"));
+        return ResponseEntity.ok(new ApiResponse<>(true, cartDetailDTO, "Add to cart successfully!"));
     }
 
     @PostMapping("/cart/add")
@@ -108,6 +108,17 @@ public class CartController extends AbstractController {
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "updateCartGuest"));
         cartDTO = cartService.updateCartGuest(id, cartDTO);
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "updateCartGuest"));
+        return ResponseEntity.ok(new ApiResponse<>(true, cartDTO, "Update cart successfully!"));
+    }
+
+    @DeleteMapping("/cart/delete/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> deleteCartDetail(
+            HttpServletRequest request,
+            @PathVariable("id") String id
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "updateCartGuest"));
+        Boolean cartDTO = cartService.deleteCartDetail(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "updateCartGuest"));
         return ResponseEntity.ok(new ApiResponse<>(true, cartDTO, "Update cart successfully!"));
     }
