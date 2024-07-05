@@ -23,4 +23,6 @@ public interface CartService extends AbstractService<CartDTO, Cart> {
     CartDTO addToCartGuest(CartDetailDTO cartDetailDTO);
 
     CartDTO updateCartGuest(String id, CartDTO cartDTO);
+
+    Boolean deleteCartDetail(String email, String id);
 }

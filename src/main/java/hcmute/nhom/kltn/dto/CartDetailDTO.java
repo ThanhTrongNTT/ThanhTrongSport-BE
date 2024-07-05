@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,8 @@ public class CartDetailDTO extends AbstractDTO {
     private String id;
     private ProductDTO product;
     private Integer quantity;
+    @JsonIgnore
+    private CartDTO cart;
     private Boolean removalFlag;
 
     @Override

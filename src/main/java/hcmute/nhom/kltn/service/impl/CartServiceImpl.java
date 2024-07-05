@@ -3,6 +3,7 @@ package hcmute.nhom.kltn.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -11,15 +12,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.dto.CartDTO;
 import hcmute.nhom.kltn.dto.CartDetailDTO;
+import hcmute.nhom.kltn.dto.ProductDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
+import hcmute.nhom.kltn.exception.NotFoundException;
 import hcmute.nhom.kltn.exception.SystemErrorException;
 import hcmute.nhom.kltn.mapper.CartDetailMapper;
 import hcmute.nhom.kltn.mapper.CartMapper;
+import hcmute.nhom.kltn.mapper.ProductMapper;
 import hcmute.nhom.kltn.model.Cart;
 import hcmute.nhom.kltn.model.CartDetail;
+import hcmute.nhom.kltn.model.User;
 import hcmute.nhom.kltn.repository.CartRepository;
 import hcmute.nhom.kltn.service.CartDetailService;
 import hcmute.nhom.kltn.service.CartService;
+import hcmute.nhom.kltn.service.ProductService;
 import hcmute.nhom.kltn.service.UserService;
 
 /**
@@ -38,6 +44,7 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
     private final CartRepository cartRepository;
     private final CartDetailService cartDetailService;
     private final UserService userService;
+    private final ProductService productService;
 
     @Override
     public CartRepository getRepository() {
@@ -68,35 +75,35 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
         }
     }
 
+//    @Override
+//    @Transactional
+//    public CartDTO save(CartDTO dto) {
+//        if (dto == null) {
+//            throw new SystemErrorException("Save not success. DTO is null");
+//        }
+//        // E item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
+//        Cart item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
+//        entity = getRepository().save(item);
+//
+//        if (Objects.nonNull(dto.getCartDetails())) {
+//            // Chuyển đổi CartDetailDTO thành CartDetail
+//            List<CartDetail> cartDetails = dto.getCartDetails().stream().map(cartDetailDTO ->
+//                            CartDetailMapper.INSTANCE.toEntity(cartDetailDTO, getCycleAvoidingMappingContext()))
+//                    .collect(Collectors.toList());
+//
+//            // Lưu các chi tiết giỏ hàng vào cơ sở dữ liệu
+//            for (CartDetail cartDetail : cartDetails) {
+//                cartDetail.setCart(entity);
+//                cartDetail.setRemovalFlag(false);
+//                cartDetail = cartDetailService.save(cartDetail);
+//                entity.getCartDetails().add(cartDetail);
+//            }
+//        }
+//        return getMapper().toDto(entity, getCycleAvoidingMappingContext());
+//    }
+
     @Override
-    @Transactional
-    public CartDTO save(CartDTO dto) {
-        if (dto == null) {
-            throw new SystemErrorException("Save not success. DTO is null");
-        }
-        // E item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
-        Cart item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
-        entity = getRepository().save(item);
-
-        if (Objects.nonNull(dto.getCartDetails())) {
-            // Chuyển đổi CartDetailDTO thành CartDetail
-            List<CartDetail> cartDetails = dto.getCartDetails().stream().map(cartDetailDTO ->
-                            CartDetailMapper.INSTANCE.toEntity(cartDetailDTO, getCycleAvoidingMappingContext()))
-                    .collect(Collectors.toList());
-
-            // Lưu các chi tiết giỏ hàng vào cơ sở dữ liệu
-            for (CartDetail cartDetail : cartDetails) {
-                cartDetail.setCart(entity);
-                cartDetail.setRemovalFlag(false);
-                cartDetail = cartDetailService.save(cartDetail);
-                entity.getCartDetails().add(cartDetail);
-            }
-        }
-        return getMapper().toDto(entity, getCycleAvoidingMappingContext());
-    }
-
-    @Override
-    @Transactional
+//    @Transactional
     public CartDTO addToCart(String email, CartDetailDTO cartDetailDTO) {
         String method = "addToCart";
         logger.info(getMessageStart(BL_NO, method));
@@ -104,50 +111,54 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
         logger.debug(getMessageInputParam(BL_NO, "cartDetailDTO", cartDetailDTO));
         checkInputParamAddToCart(email, cartDetailDTO);
         try {
+            UserDTO userDTO = userService.findByEmail(email);
+            if (Objects.isNull(userDTO)) {
+                throw new NotFoundException("User not found!");
+            }
+            CartDTO cartDTO;
             CartDTO oldCart = getCartByUser(email);
             if (Objects.isNull(oldCart)) {
                 // First Item add to cart
-                UserDTO userDTO = userService.findByEmail(email);
-                CartDTO cartDTO = new CartDTO();
-                cartDTO.setCartDetails(List.of(cartDetailDTO));
+                cartDTO = new CartDTO();
                 cartDTO.setUser(userDTO);
+                cartDTO.setCartDetails(new ArrayList<>());
                 cartDTO.setRemovalFlag(false);
                 cartDTO = save(cartDTO);
-                logger.debug(getMessageOutputParam(BL_NO, "cartDTO", cartDTO));
-                logger.info(getMessageEnd(BL_NO, method));
-                return cartDTO;
+            } else {
+                cartDTO = oldCart;
             }
-
-            // Add to cart
-            cartDetailDTO.setRemovalFlag(false);
-            boolean found = false;
-
-            // Check if product already exists in cart
-            for (CartDetailDTO existingCartDetail : oldCart.getCartDetails()) {
-                if (existingCartDetail.getProduct().getId().equals(cartDetailDTO.getProduct().getId())) {
-                    // If exists, increment quantity
-                    int newQuantity = existingCartDetail.getQuantity() + cartDetailDTO.getQuantity();
-
-                    // Check if new quantity exceeds available stock
-                    if (newQuantity > cartDetailDTO.getProduct().getQuantity()) {
-                        throw new SystemErrorException("Quantity is over!");
-                    }
-
-                    existingCartDetail.setQuantity(newQuantity);
-                    found = true;
-                    break;
+            ProductDTO product = productService.findById(cartDetailDTO.getProduct().getId());
+            if (Objects.isNull(product)) {
+                throw new NotFoundException("Product not found!");
+            }
+            Optional<CartDetailDTO> optionalCartDetail = cartDTO.getCartDetails().stream()
+                    .filter(detail -> detail.getProduct().getId().equals(cartDetailDTO.getProduct().getId()))
+                    .findFirst();
+            if (optionalCartDetail.isPresent()) {
+                CartDetailDTO cartDetail = optionalCartDetail.get();
+                int newQuantity = cartDetail.getQuantity() + cartDetailDTO.getQuantity();
+                if (newQuantity > product.getQuantity()) {
+                    throw new RuntimeException("Quantity exceeds available stock");
                 }
+                cartDetail.setQuantity(newQuantity);
+                cartDetailService.save(cartDetail);
+            } else {
+                if (cartDetailDTO.getQuantity() > product.getQuantity()) {
+                    throw new RuntimeException("Quantity exceeds available stock");
+                }
+                CartDetailDTO cartDetail = new CartDetailDTO();
+                cartDetail.setCart(cartDTO);
+                cartDetail.setProduct(product);
+                cartDetail.setQuantity(cartDetailDTO.getQuantity());
+                cartDetail.setRemovalFlag(false);
+                cartDetail = cartDetailService.save(cartDetail);
+                cartDTO.getCartDetails().add(cartDetail);
             }
-
-            // If product does not exist in cart, add new CartDetail
-            if (!found) {
-                oldCart.getCartDetails().add(cartDetailDTO);
-            }
-
-            oldCart = save(oldCart);
-            logger.debug(getMessageOutputParam(BL_NO, "cartDTO", oldCart));
+            // Add to cart
+            cartDTO = save(cartDTO);
+            logger.debug(getMessageOutputParam(BL_NO, "cartDTO", cartDTO));
             logger.info(getMessageEnd(BL_NO, method));
-            return oldCart;
+            return cartDTO;
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.info(getMessageEnd(BL_NO, method));
@@ -228,6 +239,43 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
             logger.info(getMessageEnd(BL_NO, method));
             throw new SystemErrorException(e.getMessage());
         }
+    }
+
+    @Override
+    public Boolean deleteCartDetail(String email, String id) {
+        // Tìm người dùng dựa trên email
+        UserDTO user = userService.findByEmail(email);
+
+        if (user == null) {
+            throw new SystemErrorException("User not found!");
+        }
+
+        // Tìm giỏ hàng của người dùng
+        Cart optionalCart = cartRepository.getCartByUser(user.getEmail());
+        if (optionalCart == null) {
+            throw new SystemErrorException("Cart not found for user!");
+        }
+
+        // Tìm chi tiết giỏ hàng cần xóa
+        CartDetailDTO optionalCartDetail = cartDetailService.findById(id);
+        if (optionalCartDetail == null) {
+            throw new SystemErrorException("Cart detail not found!");
+        }
+
+        // Kiểm tra xem chi tiết giỏ hàng có thuộc giỏ hàng của người dùng không
+//        if (!optionalCartDetail.getId().equals(cart.getId())) {
+//            throw new SystemErrorException("Cart detail does not belong to user's cart!");
+//        }
+
+        // Đánh dấu chi tiết giỏ hàng là đã xóa
+        optionalCartDetail.setRemovalFlag(true);
+        cartDetailService.save(optionalCartDetail);
+
+        // Xóa chi tiết giỏ hàng khỏi giỏ hàng
+        optionalCart.getCartDetails().remove(optionalCartDetail);
+        cartRepository.save(optionalCart);
+
+        return true;
     }
 
     private void checkInputParamUpdateCart(String email, CartDTO cartDTO) {
