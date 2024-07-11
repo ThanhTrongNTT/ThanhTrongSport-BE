@@ -81,7 +81,6 @@ public class CartController extends AbstractController {
     public ResponseEntity<ApiResponse<CartDetailDTO>> updateCart(
             HttpServletRequest request,
             @RequestBody CartDetailDTO cartDetailDTO
-
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "addToCart"));
         cartDetailDTO = cartService.updateCartDetail(cartDetailDTO);
@@ -117,9 +116,9 @@ public class CartController extends AbstractController {
             HttpServletRequest request,
             @PathVariable("id") String id
     ) {
-        logger.info(getMessageStart(request.getRequestURL().toString(), "updateCartGuest"));
+        logger.info(getMessageStart(request.getRequestURL().toString(), "deleteCartDetail"));
         Boolean cartDTO = cartService.deleteCartDetail(id);
-        logger.info(getMessageEnd(request.getRequestURL().toString(), "updateCartGuest"));
-        return ResponseEntity.ok(new ApiResponse<>(true, cartDTO, "Update cart successfully!"));
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "deleteCartDetail"));
+        return ResponseEntity.ok(new ApiResponse<>(true, cartDTO, "Delete cart successfully!"));
     }
 }

@@ -47,7 +47,7 @@ public class Cart extends AbstractAuditModel {
     private List<CartDetail> cartDetails;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "cart")
-    private OrderDetail orderDetail;
+    private Order order;
 
     @Column(name = "total", nullable = false)
     private Long total;

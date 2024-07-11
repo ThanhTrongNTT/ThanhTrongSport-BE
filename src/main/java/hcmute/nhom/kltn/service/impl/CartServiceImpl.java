@@ -225,7 +225,8 @@ public class CartServiceImpl extends AbstractServiceImpl<CartRepository, CartMap
                 logger.info(getMessageEnd(BL_NO, method));
                 throw new IllegalArgumentException(message);
             }
-            cartDetailService.delete(cartDetail);
+            cartDetail.setCart(null);
+            cartDetailService.save(cartDetail);
             logger.debug(getMessageOutputParam(BL_NO, "result", true));
             logger.info(getMessageEnd(BL_NO, method));
             return true;
