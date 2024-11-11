@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +50,13 @@ public class UserController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getAllUser"));
         Page<UserDTO> userDTOPage = userService.getPaging(pageNo, pageSize, sortBy, sortDir);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllUser"));
-        return ResponseEntity.ok(new ApiResponse<>(true, userDTOPage, "Get all user successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<Page<UserDTO>>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(userDTOPage)
+                        .message("Get all user successfully!")
+                        .build());
     }
 
     @GetMapping("/users/search-by-name")
@@ -68,7 +75,13 @@ public class UserController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "searchUser"));
         Page<UserDTO> userDTOPage = userService.searchUser(keyword, pageNo, pageSize, sortBy, sortDir);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "searchUser"));
-        return ResponseEntity.ok(new ApiResponse<>(true, userDTOPage, "Search user successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<Page<UserDTO>>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(userDTOPage)
+                        .message("Search user successfully!")
+                        .build());
     }
 
     @GetMapping("/users/{id}")
@@ -79,7 +92,13 @@ public class UserController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getUserById"));
         UserDTO userDTO = userService.findById(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getUserById"));
-        return ResponseEntity.ok(new ApiResponse<>(true, userDTO, "Get user by id successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<UserDTO>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(userDTO)
+                        .message("Get user by id successfully!")
+                        .build());
     }
 
     @GetMapping("/user/{email}")
@@ -90,7 +109,13 @@ public class UserController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getUserByEmail"));
         UserDTO userDTO = userService.findByEmail(email);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getUserByEmail"));
-        return ResponseEntity.ok(new ApiResponse<>(true, userDTO, "Get user by email successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<UserDTO>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(userDTO)
+                        .message("Get user by email successfully!")
+                        .build());
     }
 
     @PutMapping("/user/{email}")
@@ -103,7 +128,13 @@ public class UserController extends AbstractController {
         String userEmail = (String) session.getAttribute("email");
         UserDTO result = userService.updateUserProfile(userEmail, userDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "updateUser"));
-        return ResponseEntity.ok(new ApiResponse<>(true, result, "Update user successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<UserDTO>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(result)
+                        .message("Update user successfully!")
+                        .build());
     }
 
     @DeleteMapping("/user/{id}")
@@ -114,7 +145,12 @@ public class UserController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "deleteUser"));
         userService.delete(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "deleteUser"));
-        return ResponseEntity.ok(new ApiResponse<>(true, null, "Delete user successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<UserDTO>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .message("Delete user successfully!")
+                        .build());
     }
 
     @PostMapping("/user/change-password")
@@ -125,7 +161,13 @@ public class UserController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "changePassword"));
         Boolean result = userService.changePassword(changePasswordRequest);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "changePassword"));
-        return ResponseEntity.ok(new ApiResponse<>(true, result, "Change password successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(result)
+                        .message("Change password successfully!")
+                        .build());
     }
 
     @PostMapping("/user/active/{email}")
@@ -136,7 +178,13 @@ public class UserController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "activeUser"));
         Boolean result = userService.activeUser(email);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "activeUser"));
-        return ResponseEntity.ok(new ApiResponse<>(true, result, "Active user successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(result)
+                        .message("Active user successfully!")
+                        .build());
     }
 
     @PostMapping("/user/deactive/{email}")
@@ -147,6 +195,12 @@ public class UserController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "activeUser"));
         Boolean result = userService.deactiveUser(email);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "activeUser"));
-        return ResponseEntity.ok(new ApiResponse<>(true, result, "Active user successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(result)
+                        .message("Deactive user successfully!")
+                        .build());
     }
 }

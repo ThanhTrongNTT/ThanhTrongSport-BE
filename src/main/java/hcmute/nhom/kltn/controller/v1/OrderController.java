@@ -1,10 +1,13 @@
 package hcmute.nhom.kltn.controller.v1;
 
 import javax.servlet.http.HttpServletRequest;
+import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import hcmute.nhom.kltn.common.payload.ApiResponse;
-import hcmute.nhom.kltn.dto.CartDTO;
 import hcmute.nhom.kltn.dto.OrderDTO;
 import hcmute.nhom.kltn.service.OrderService;
 import hcmute.nhom.kltn.util.Constants;
@@ -48,7 +50,13 @@ public class OrderController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getAllOrder"));
         Page<OrderDTO> orderDTOPage = orderService.getPaging(pageNo, pageSize, sortBy, sortDir);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllOrder"));
-        return ResponseEntity.ok(new ApiResponse<>(true, orderDTOPage, "Get all order successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<Page<OrderDTO>>builder()
+                        .result(true)
+                        .data(orderDTOPage)
+                        .message("Get all order successfully!")
+                        .code(HttpStatus.OK.toString())
+                        .build());
     }
 
     @GetMapping("/orders/{id}")
@@ -59,7 +67,13 @@ public class OrderController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "searchOrder"));
         OrderDTO orderDTO = orderService.findById(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "searchOrder"));
-        return ResponseEntity.ok(new ApiResponse<>(true, orderDTO, "Get order successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<OrderDTO>builder()
+                        .result(true)
+                        .data(orderDTO)
+                        .message("Get order successfully!")
+                        .code(HttpStatus.OK.toString())
+                        .build());
     }
 
     @GetMapping("/orders/{email}")
@@ -78,18 +92,46 @@ public class OrderController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getOrderByUser"));
         Page<OrderDTO> orderDTOPage = orderService.getOrderByUser(email, pageNo, pageSize, sortBy, sortDir);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getOrderByUser"));
-        return ResponseEntity.ok(new ApiResponse<>(true, orderDTOPage, "Get order by user successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<Page<OrderDTO>>builder()
+                        .result(true)
+                        .data(orderDTOPage)
+                        .message("Get order by user successfully!")
+                        .code(HttpStatus.OK.toString())
+                        .build());
     }
 
-    @PostMapping("/order/add")
+    @PostMapping("/order/{email}/add")
     public ResponseEntity<ApiResponse<OrderDTO>> addOrder(
             HttpServletRequest request,
             @RequestParam("email") String email,
-            @RequestBody CartDTO cartDTO
+            @RequestBody OrderDTO orderDTO
             ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "createOrder"));
-//        OrderDTO orderDTO = orderService.createOrder(email, cartDTO);
+        orderDTO = orderService.createOrder(email, orderDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "createOrder"));
-        return ResponseEntity.ok(new ApiResponse<>(true, null, "Create order successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<OrderDTO>builder()
+                        .result(true)
+                        .data(orderDTO)
+                        .message("Create order successfully!")
+                        .code(HttpStatus.OK.toString())
+                        .build());
+    }
+    @DeleteMapping("/order/{id}")
+    public ResponseEntity<ApiResponse<OrderDTO>> deleteOrder(
+            HttpServletRequest request,
+            @PathVariable("id") String id
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "deleteOrder"));
+        orderService.delete(id);
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "deleteOrder"));
+        return ResponseEntity.ok(
+                ApiResponse.<OrderDTO>builder()
+                        .result(true)
+                        .data(null)
+                        .message("Delete order successfully!")
+                        .code(HttpStatus.OK.toString())
+                        .build());
     }
 }

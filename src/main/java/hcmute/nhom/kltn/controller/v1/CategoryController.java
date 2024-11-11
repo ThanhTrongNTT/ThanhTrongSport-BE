@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import hcmute.nhom.kltn.common.payload.ApiResponse;
 import hcmute.nhom.kltn.dto.CategoryDTO;
+import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.service.CategoryService;
 import hcmute.nhom.kltn.util.Constants;
 
@@ -36,7 +38,7 @@ public class CategoryController extends AbstractController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<ApiResponse<Page<CategoryDTO>>> getAllCategories(
+    public ResponseEntity<ApiResponse<PaginationDTO<CategoryDTO>>> getAllCategories(
             HttpServletRequest request,
             @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
             int pageNo,
@@ -48,9 +50,15 @@ public class CategoryController extends AbstractController {
             String sortDir
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getAllCategories"));
-        Page<CategoryDTO> categoryDTOS = categoryService.getPaging(pageNo, pageSize, sortBy, sortDir);
+        PaginationDTO<CategoryDTO> categoryDTOS = categoryService.getAllCategoryPagination(pageNo, pageSize, sortBy, sortDir);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllCategories"));
-        return ResponseEntity.ok(new ApiResponse<>(true, categoryDTOS, "Get all categories successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<PaginationDTO<CategoryDTO>>builder()
+                        .result(true)
+                        .data(categoryDTOS)
+                        .message("Get all categories successfully!")
+                        .code(HttpStatus.OK.toString())
+                        .build());
     }
 
     @GetMapping("/categories/list")
@@ -58,9 +66,57 @@ public class CategoryController extends AbstractController {
             HttpServletRequest request
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getAllCategories"));
-        List<CategoryDTO> categoryDTOS = categoryService.findAll();
+        List<CategoryDTO> categoryDTOS = categoryService.getAllCategory();
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllCategories"));
-        return ResponseEntity.ok(new ApiResponse<>(true, categoryDTOS, "Get all categories successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<List<CategoryDTO>>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(categoryDTOS)
+                        .message("Get all categories successfully!")
+                        .build());
+    }
+
+    @GetMapping("/categories/level/{level}")
+    public ResponseEntity<ApiResponse<PaginationDTO<CategoryDTO>>> getAllFromLevel(
+            HttpServletRequest request,
+            @PathVariable("level") Integer level,
+            @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
+            int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = Constants.DEFAULT_PAGE_SIZE, required = false)
+            int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = Constants.DEFAULT_SORT_BY, required = false)
+            String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = Constants.DEFAULT_SORT_DIRECTION, required = false)
+            String sortDir
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "getAllFromLevel"));
+        PaginationDTO<CategoryDTO> categoryDTOS = categoryService.getAllFromLevel(level, pageNo, pageSize, sortBy, sortDir);
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllFromLevel"));
+        return ResponseEntity.ok(
+                ApiResponse.<PaginationDTO<CategoryDTO>>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(categoryDTOS)
+                        .message("Get all from level successfully!")
+                        .build());
+    }
+
+    @GetMapping("/categories/child-categories/{id}")
+    public ResponseEntity<ApiResponse<List<CategoryDTO>>> getChildCategories(
+            HttpServletRequest request,
+            @PathVariable("id") String id
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "getChildCategories"));
+        List<CategoryDTO> categoryDTOS = categoryService.getChildCategories(id);
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "getChildCategories"));
+        return ResponseEntity.ok(
+                ApiResponse.<List<CategoryDTO>>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(categoryDTOS)
+                        .message("Get child categories successfully!")
+                        .build());
     }
 
     @GetMapping("/categories/{id}")
@@ -71,7 +127,13 @@ public class CategoryController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "searchCategory"));
         CategoryDTO categoryDTO = categoryService.findById(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "searchCategory"));
-        return ResponseEntity.ok(new ApiResponse<>(true, categoryDTO, "Search category successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<CategoryDTO>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(categoryDTO)
+                        .message("Search category successfully!")
+                        .build());
     }
 
     @PostMapping("/category")
@@ -80,10 +142,15 @@ public class CategoryController extends AbstractController {
             @RequestBody CategoryDTO categoryDTO
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "createCategory"));
-        categoryDTO.setRemovalFlag(false);
         CategoryDTO category = categoryService.save(categoryDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "createCategory"));
-        return ResponseEntity.ok(new ApiResponse<>(true, category, "Create category successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<CategoryDTO>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(category)
+                        .message("Create category successfully!")
+                        .build());
     }
 
     @PutMapping("/category/{id}")
@@ -95,7 +162,13 @@ public class CategoryController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "updateCategory"));
         CategoryDTO category = categoryService.updateCategory(id, categoryDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "updateCategory"));
-        return ResponseEntity.ok(new ApiResponse<>(true, category, "Update category successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<CategoryDTO>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(category)
+                        .message("Update category successfully!")
+                        .build());
     }
 
     @DeleteMapping("/category/{id}")
@@ -106,7 +179,12 @@ public class CategoryController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "deleteCategory"));
         categoryService.delete(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "deleteCategory"));
-        return ResponseEntity.ok(new ApiResponse<>(true, true, "Delete category successfully!"));
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .message("Delete category successfully!")
+                        .build());
     }
 
 }
