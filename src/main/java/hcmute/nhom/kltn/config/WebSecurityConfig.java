@@ -1,8 +1,11 @@
 package hcmute.nhom.kltn.config;
 
+import java.nio.file.AccessDeniedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,9 +16,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import hcmute.nhom.kltn.exception.CustomAccessDeniedHandler;
 import hcmute.nhom.kltn.security.jwt.JwtEntryPoint;
 import hcmute.nhom.kltn.security.jwt.JwtTokenFilter;
+import hcmute.nhom.kltn.security.oauth2.CustomOAuth2UserService;
+import hcmute.nhom.kltn.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
+import hcmute.nhom.kltn.security.oauth2.OAuth2AuthenticationFailureHandler;
+import hcmute.nhom.kltn.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import hcmute.nhom.kltn.security.pricipal.CustomUserDetailService;
 
 /**
@@ -31,7 +40,11 @@ import hcmute.nhom.kltn.security.pricipal.CustomUserDetailService;
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final CustomUserDetailService customUserDetailsService;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtEntryPoint jwtEntryPoint;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     /**
      * JwtTokenFilter.
@@ -47,6 +60,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         // Password encoder, để Spring Security sử dụng mã hóa mật khẩu người dùng
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
     }
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
@@ -70,19 +88,37 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v1/auth/**").permitAll()
-                .antMatchers("/api/v1/token/**").permitAll()
-                .antMatchers("/api/v1/user/active/**").permitAll()
+                .antMatchers("/oauth2/**", "/login/","/api/v1/auth/**").permitAll()
                 .antMatchers("/api/v1/products/**").permitAll()
                 .antMatchers("/api/v1/categories/**").permitAll()
-                .antMatchers("/api/v1/media/**").permitAll()
-                .antMatchers("/api/v1/colors/**").permitAll()
+                .antMatchers("/api/v1/orders").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/api/v1/order/**").hasRole("ADMIN")
+                //.antMatchers("/api/v1/user/active/**").permitAll()
+                //.antMatchers("/api/v1/products/**").permitAll()
+                //.antMatchers("/api/v1/media/**").permitAll()
+                //.antMatchers("/api/v1/colors/**").permitAll()
                 .anyRequest().authenticated()
-//                .antMatchers("/api/v1/sizes/**").permitAll()
-                .and().exceptionHandling()
+                .and()
+                .oauth2Login()
+                .authorizationEndpoint()
+                .baseUri("/oauth2/authorization")
+                .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+                .and()
+                .redirectionEndpoint()
+                .baseUri("/oauth2/callback/*")
+                .and()
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService)
+                .and()
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler(oAuth2AuthenticationFailureHandler)
+                .and()
+                .exceptionHandling()
                 .authenticationEntryPoint(jwtEntryPoint)
+                .accessDeniedHandler(customAccessDeniedHandler)
                 //Tất cả các request khác đều được phải xác thực trước khi truy cập
-                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // Thêm một lớp Filter kiểm tra jwt
         http.addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }

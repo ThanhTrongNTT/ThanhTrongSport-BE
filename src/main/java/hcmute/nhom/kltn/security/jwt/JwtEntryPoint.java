@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -39,12 +40,13 @@ public class JwtEntryPoint extends AbstractMessage implements AuthenticationEntr
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
         logger.error(getMessage("common.error.unAuthorized", new String[]{authException.getMessage()}));
-        ApiResponse<Long> apiMessageDto = new ApiResponse<>();
-        apiMessageDto.setResult(false);
-        apiMessageDto.setMessage("Invalid token");
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write(mapper.writeValueAsString(apiMessageDto));
+        response.getWriter().write(mapper.writeValueAsString(ApiResponse.<Long>builder()
+                .result(false)
+                .code(HttpStatus.UNAUTHORIZED.toString())
+                .message("Invalid token")
+                .build()));
         response.getWriter().flush();
     }
 }

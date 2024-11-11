@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.security.jwt;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
 import java.util.function.Predicate;
