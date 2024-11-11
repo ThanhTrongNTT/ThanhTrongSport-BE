@@ -19,22 +19,16 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserProfileDTO extends AbstractDTO {
     private String id;
-    private String firstName;
-    private String lastName;
+    private String name;
     private Date birthDate;
-    private MediaFileDTO avatar;
+    private ImageDTO avatar;
     private Boolean removalFlag;
-
-    public String getFullName() {
-        return this.firstName + " " + this.lastName;
-    }
 
     @Override
     public String toString() {
         return "UserProfileDTO{" +
                 "id='" + id + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
+                ", name='" + name + '\'' +
                 ", removalFlag=" + removalFlag +
                 '}';
     }

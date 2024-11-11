@@ -2,6 +2,7 @@ package hcmute.nhom.kltn.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -42,35 +43,24 @@ public class UserProfile extends AbstractAuditModel {
     @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name = "first_name")
-    private String firstName;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "last_name")
-    private String lastName;
-
-    @Column
+    @Column(name = "birth_date")
     private Date birthDate;
 
-    @OneToOne
-    @JoinColumn(name = "avatar_id", referencedColumnName = "id")
-    private MediaFile avatar;
-
-//    @OneToOne(mappedBy = "userProfile", fetch = FetchType.LAZY)
-//    private User user;
+    @OneToOne(cascade = CascadeType.DETACH)
+    @JoinColumn(name = "avatar_id")
+    private Image avatar;
 
     @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag = false;
 
-    private String getFullName() {
-        return this.firstName + " " + this.lastName;
-    }
-
     @Override
     public String toString() {
         return "UserProfile [id=" + id
-                + ", firstName=" + firstName
-                + ", lastName=" + lastName
-                + ", avatar=" + avatar
+                + ", name=" + name
+//                + ", avatar=" + avatar
                 + ", removalFlag=" + removalFlag + "]";
     }
 }

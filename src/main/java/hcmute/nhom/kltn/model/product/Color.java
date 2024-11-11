@@ -1,12 +1,17 @@
-package hcmute.nhom.kltn.dto;
+package hcmute.nhom.kltn.model.product;
 
+import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import hcmute.nhom.kltn.model.Image;
 
 /**
- * Class SizeDTO.
+ * Class Color.
  *
  * @author: ThanhTrong
  * @function_id:
@@ -14,9 +19,10 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class SizeDTO extends AbstractDTO {
+@AllArgsConstructor
+@Embeddable
+public class Color {
     private String code;
     private String displayCode;
     private String name;

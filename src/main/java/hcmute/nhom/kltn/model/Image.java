@@ -1,69 +1,46 @@
 package hcmute.nhom.kltn.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
+import hcmute.nhom.kltn.model.product.Product;
 
 /**
- * Class MediaFile.
+ * Class Image.
  *
  * @author: ThanhTrong
  * @function_id:
  * @version:
  **/
 @Entity
-@Table(name = "t_media_file")
+@Table(name = "t_image")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class MediaFile extends AbstractAuditModel {
-    /**
-     * MediaFile entity.
-     */
-
+@AllArgsConstructor
+public class Image extends AbstractAuditModel {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(name = "id", nullable = false)
     private String id;
-
-    @Column(name = "file_name", nullable = false)
+    @Column(name = "file_name")
     private String fileName;
-
-    @Column(name = "file_type", nullable = false)
+    @Column(name = "file_type")
     private String fileType;
-
-    @Column(name = "url", nullable = false)
+    @Column(name = "url")
     private String url;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
-
-    @Column(name = "removal_flag", nullable = false, length = 1)
-    private Boolean removalFlag = false;
-
-    @Override
-    public String toString() {
-        return "MediaFile [id=" + id
-                + ", fileName=" + fileName
-                + ", fileType=" + fileType
-                + ", url=" + url
-                + ", removalFlag=" + removalFlag + "]";
-    }
 }

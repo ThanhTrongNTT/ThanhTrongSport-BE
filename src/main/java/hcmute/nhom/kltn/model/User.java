@@ -1,6 +1,5 @@
 package hcmute.nhom.kltn.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -12,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -20,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
+import hcmute.nhom.kltn.model.product.Product;
 
 /**
  * Class User.
@@ -32,6 +34,13 @@ import org.hibernate.annotations.GenericGenerator;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@NamedEntityGraph(
+        name = "User.detail",
+        attributeNodes = {
+                @NamedAttributeNode("userProfile"),
+                @NamedAttributeNode("roles")
+        }
+)
 public class User extends AbstractAuditModel {
 
     /**
@@ -50,15 +59,21 @@ public class User extends AbstractAuditModel {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
+
+    @Column(name = "provider_id")
+    private String providerId;
 
     @Column(name = "active_flag", length = 1)
     private Boolean activeFlag;
 
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private UserProfile userProfile;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Address> addressList;
 
     @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
@@ -68,13 +83,13 @@ public class User extends AbstractAuditModel {
     )
     private Set<Role> roles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE)
-    @JsonIgnore
-    private List<Cart> carts;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    @JsonIgnore
-    private List<Order> orders;
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "t_wishlist",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private List<Product> products;
 
     @Column(name = "removal_flag", length = 1)
     private Boolean removalFlag;

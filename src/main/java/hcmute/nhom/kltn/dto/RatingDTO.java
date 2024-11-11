@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Class CategoryDTO.
+ * Class RatingDTO.
  *
  * @author: ThanhTrong
  * @function_id:
@@ -16,10 +16,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryDTO extends AbstractDTO {
+public class RatingDTO extends AbstractDTO {
     private String id;
-    private String categoryName;
-    private Integer level;
-    private String locale;
-    private CategoryDTO parentCategory;
+    private int rating;
+    private String comment;
 }

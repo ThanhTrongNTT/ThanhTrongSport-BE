@@ -1,12 +1,13 @@
-package hcmute.nhom.kltn.dto;
+package hcmute.nhom.kltn.model.product;
 
+import javax.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Class SizeDTO.
+ * Class Size.
  *
  * @author: ThanhTrong
  * @function_id:
@@ -14,10 +15,12 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class SizeDTO extends AbstractDTO {
+@AllArgsConstructor
+@Embeddable
+public class Size {
     private String code;
     private String displayCode;
     private String name;
 }
+

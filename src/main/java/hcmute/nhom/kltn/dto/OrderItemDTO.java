@@ -7,24 +7,21 @@ import lombok.Setter;
 import hcmute.nhom.kltn.model.product.Price;
 
 /**
- * Class OrderDTO.
+ * Class OrderItemDTO.
  *
  * @author: ThanhTrong
  * @function_id:
  * @version:
  **/
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDTO extends AbstractDTO {
+public class OrderItemDTO extends AbstractDTO {
     private String id;
-    private int productsCount;
-    private UserDTO user;
-    private Price subtotal;
-    private Price tax;
-    private Price total;
-    private String status;
-    private String paymentMethod;
-    private AddressDTO address;
+    private int quantity;
+    private ProductItemDTO product;
+    private OrderDTO order;
+    private Price subTotal;
+
 }

@@ -27,6 +27,7 @@ public class UserDTO extends AbstractDTO {
     private String email;
     private String password;
     private Boolean activeFlag;
+    private String providerId;
     private UserProfileDTO userProfile;
     @JsonIgnore
     private Set<RoleDTO> roles;

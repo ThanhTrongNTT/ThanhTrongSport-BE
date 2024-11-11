@@ -6,20 +6,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Class CategoryDTO.
+ * Class ImageDTO.
  *
  * @author: ThanhTrong
  * @function_id:
  * @version:
  **/
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryDTO extends AbstractDTO {
+public class ImageDTO extends AbstractDTO {
     private String id;
-    private String categoryName;
-    private Integer level;
-    private String locale;
-    private CategoryDTO parentCategory;
+    private String fileName;
+    private String fileType;
+    private String url;
+    private ProductDTO product;
 }
