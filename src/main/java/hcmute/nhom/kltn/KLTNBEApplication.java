@@ -2,8 +2,6 @@
 
 package hcmute.nhom.kltn;
 
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -11,14 +9,17 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import hcmute.nhom.kltn.dto.MediaFileDTO;
+import hcmute.nhom.kltn.config.AuditorAwareImpl;
+import hcmute.nhom.kltn.dto.ImageDTO;
 import hcmute.nhom.kltn.dto.RoleDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.dto.UserProfileDTO;
 import hcmute.nhom.kltn.enums.RoleName;
-import hcmute.nhom.kltn.service.MediaFileService;
+import hcmute.nhom.kltn.service.ImageService;
 import hcmute.nhom.kltn.service.RoleService;
 import hcmute.nhom.kltn.service.UserProfileService;
 import hcmute.nhom.kltn.service.UserService;
@@ -28,6 +29,7 @@ import hcmute.nhom.kltn.util.Constants;
  * Class KLTNBEApplication.<br>
  */
 @SpringBootApplication
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class KLTNBEApplication {
 
     public static void main(String[] args) {
@@ -35,19 +37,24 @@ public class KLTNBEApplication {
     }
 
     @Bean
+    public AuditorAware<String> auditorAware() {
+        return new AuditorAwareImpl();
+    }
+
+    @Bean
     @Transactional
     CommandLineRunner runner(
             UserService userService, PasswordEncoder passwordEncoder, RoleService roleService,
-            UserProfileService userProfileService, MediaFileService mediaFileService) {
+            UserProfileService userProfileService, ImageService mediaFileService) {
         return args -> {
-            MediaFileDTO mediaFile = mediaFileService.findByFileName("default-avatar.png");
+            ImageDTO mediaFile = mediaFileService.findByFileName("default-avatar.png");
             if (Objects.isNull(mediaFile)) {
                 String fileName = "default-avatar.png";
-                mediaFile = new MediaFileDTO();
+                mediaFile = new ImageDTO();
                 mediaFile.setFileName(fileName);
                 mediaFile.setFileType(fileName.substring(fileName.lastIndexOf(".")));
                 mediaFile.setUrl(Constants.DEFAULT_AVATAR);
-                mediaFile.setRemovalFlag(false);
+                mediaFile.setProduct(null);
                 mediaFile = mediaFileService.save(mediaFile);
             }
 
@@ -56,7 +63,7 @@ public class KLTNBEApplication {
                 roleUser = new RoleDTO();
                 roleUser.setRoleName(RoleName.USER.name());
                 roleUser.setRemovalFlag(false);
-                roleService.save(roleUser);
+                roleUser = roleService.save(roleUser);
             }
             RoleDTO roleAdmin = roleService.findByRoleName(RoleName.ADMIN.name());
             if (Objects.isNull(roleAdmin)) {
@@ -71,8 +78,7 @@ public class KLTNBEApplication {
                 UserProfileDTO userProfile = userProfileService.findProfileByEmail("admin@store.com");
                 if (Objects.isNull(userProfile)) {
                     userProfile = new UserProfileDTO();
-                    userProfile.setFirstName("Nguyen");
-                    userProfile.setLastName("Thanh Trong");
+                    userProfile.setName("Thanh Trong");
                     userProfile.setAvatar(mediaFile);
                     userProfile.setRemovalFlag(false);
                     userProfile = userProfileService.save(userProfile);
