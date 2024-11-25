@@ -6,8 +6,6 @@ import java.util.Map;
  * Class OAuth2FacebookUser.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 public class OAuth2FacebookUser extends OAuth2UserDetail {
     public OAuth2FacebookUser(Map<String, Object> attributes) {
@@ -22,5 +20,10 @@ public class OAuth2FacebookUser extends OAuth2UserDetail {
     @Override
     public String getName() {
         return attributes.get("name").toString();
+    }
+
+    @Override
+    public String getAvatarUrl() {
+        return attributes.get("picture").toString();
     }
 }

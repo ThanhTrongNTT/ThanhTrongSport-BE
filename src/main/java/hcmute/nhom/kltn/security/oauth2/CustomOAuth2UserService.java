@@ -23,10 +23,10 @@ import hcmute.nhom.kltn.mapper.UserMapper;
 import hcmute.nhom.kltn.mapper.helper.CycleAvoidingMappingContext;
 import hcmute.nhom.kltn.security.oauth2.dto.OAuth2UserDetail;
 import hcmute.nhom.kltn.security.pricipal.UserPrincipal;
+import hcmute.nhom.kltn.service.ImageService;
 import hcmute.nhom.kltn.service.RoleService;
 import hcmute.nhom.kltn.service.UserProfileService;
 import hcmute.nhom.kltn.service.UserService;
-import hcmute.nhom.kltn.util.Constants;
 
 /**
  * Class CustomOAuth2UserService.
@@ -40,11 +40,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserProfileService userProfileService;
     private final UserService userService;
     private final RoleService roleService;
+    private final ImageService mediaFileService;
 
-    public CustomOAuth2UserService(@Lazy UserService userService, UserProfileService userProfileService, RoleService roleService) {
+    public CustomOAuth2UserService(@Lazy UserService userService, UserProfileService userProfileService, RoleService roleService, ImageService mediaFileService) {
         this.userService = userService;
         this.userProfileService = userProfileService;
         this.roleService = roleService;
+        this.mediaFileService = mediaFileService;
     }
 
     @Override
@@ -90,28 +92,27 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private UserDTO registerNewUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserDetail oAuth2UserDetail) {
         UserDTO user = new UserDTO();
 
-        // TODO: Save avatar
-        //ImageDTO mediaFile = new ImageDTO();
-        //mediaFile.setFileName(oAuth2UserDetail.getPicUrl());
-        //mediaFile.setFileType(fileName.substring(fileName.lastIndexOf(".")));
-        //mediaFile.setUrl(Constants.DEFAULT_AVATAR);
-        //mediaFile.setProduct(null);
-        //mediaFile = mediaFileService.save(mediaFile);
+        ImageDTO mediaFile = new ImageDTO();
+        mediaFile.setFileName(oAuth2UserDetail.getName());
+        mediaFile.setFileType("PNG");
+        mediaFile.setUrl(oAuth2UserDetail.getAvatarUrl());
+        mediaFile = mediaFileService.save(mediaFile);
 
         UserProfileDTO userProfileDTO = new UserProfileDTO();
         userProfileDTO.setRemovalFlag(false);
         userProfileDTO.setName(oAuth2UserDetail.getName());
-        //userProfileDTO.setAvatar();
+        userProfileDTO.setAvatar(mediaFile);
         userProfileDTO = userProfileService.save(userProfileDTO);
 
         user.setProviderId(String.valueOf(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId())));
         user.setUserName(oAuth2UserDetail.getEmail());
         user.setEmail(oAuth2UserDetail.getEmail());
         user.setUserProfile(userProfileDTO);
+        user.setActiveFlag(true);
+        user.setRemovalFlag(false);
         Set<RoleDTO> roleDTOS = new HashSet<>();
         roleDTOS.add(roleService.findByRoleName(RoleName.USER.name()));
         user.setRoles(roleDTOS);
-        //user.setImageUrl(oAuth2UserInfo.getImageUrl());
         return userService.save(user);
     }
 

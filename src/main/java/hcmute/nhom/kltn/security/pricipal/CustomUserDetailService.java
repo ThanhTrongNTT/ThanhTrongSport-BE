@@ -4,13 +4,11 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.model.User;
 import hcmute.nhom.kltn.repository.UserRepository;
-import hcmute.nhom.kltn.service.UserService;
 
 /**
  * Class CustomUserDetailService.
