@@ -1,9 +1,10 @@
-package hcmute.nhom.kltn.mapper;
+package hcmute.nhom.kltn.mapper.product;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import hcmute.nhom.kltn.dto.CategoryDTO;
-import hcmute.nhom.kltn.model.Category;
+import hcmute.nhom.kltn.dto.product.CategoryDTO;
+import hcmute.nhom.kltn.mapper.AbstractMapper;
+import hcmute.nhom.kltn.model.product.Category;
 
 /**
  * Class CategoryMapper.

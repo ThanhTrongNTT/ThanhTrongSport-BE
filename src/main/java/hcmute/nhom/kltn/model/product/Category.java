@@ -39,7 +39,7 @@ public class Category extends AbstractAuditModel {
     * */
     @Column(name = "level", nullable = false)
     private Integer level; // Phân chia level theo cấp độ của danh mục
-    @Column(name = "category_name", nullable = false)
+    @Column(name = "category_name", nullable = false, unique = true)
     private String categoryName; // Tên theo tiếng anh
     @Column(name = "locale")
     private String locale; // Tên theo ngôn ngữ

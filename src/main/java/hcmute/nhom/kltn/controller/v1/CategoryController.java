@@ -4,7 +4,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import hcmute.nhom.kltn.common.payload.ApiResponse;
-import hcmute.nhom.kltn.dto.CategoryDTO;
 import hcmute.nhom.kltn.dto.PaginationDTO;
-import hcmute.nhom.kltn.service.CategoryService;
+import hcmute.nhom.kltn.dto.product.CategoryDTO;
+import hcmute.nhom.kltn.service.product.CategoryService;
 import hcmute.nhom.kltn.util.Constants;
 
 /**
@@ -67,6 +66,23 @@ public class CategoryController extends AbstractController {
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getAllCategories"));
         List<CategoryDTO> categoryDTOS = categoryService.getAllCategory();
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllCategories"));
+        return ResponseEntity.ok(
+                ApiResponse.<List<CategoryDTO>>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(categoryDTOS)
+                        .message("Get all categories successfully!")
+                        .build());
+    }
+
+    @GetMapping("/categories/list/{level}")
+    public ResponseEntity<ApiResponse<List<CategoryDTO>>> getAllCategories(
+            HttpServletRequest request,
+            @PathVariable("level") Integer level
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "getAllCategories"));
+        List<CategoryDTO> categoryDTOS = categoryService.getCategoriesByLevelList(level);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllCategories"));
         return ResponseEntity.ok(
                 ApiResponse.<List<CategoryDTO>>builder()
@@ -182,7 +198,7 @@ public class CategoryController extends AbstractController {
         return ResponseEntity.ok(
                 ApiResponse.<Boolean>builder()
                         .result(true)
-                        .code(HttpStatus.OK.toString())
+                        .code(String.valueOf(HttpStatus.OK.value()))
                         .message("Delete category successfully!")
                         .build());
     }
