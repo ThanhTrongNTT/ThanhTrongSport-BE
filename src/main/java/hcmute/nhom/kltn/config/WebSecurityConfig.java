@@ -1,8 +1,6 @@
 package hcmute.nhom.kltn.config;
 
-import java.nio.file.AccessDeniedException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import hcmute.nhom.kltn.exception.CustomAccessDeniedHandler;
 import hcmute.nhom.kltn.security.jwt.JwtEntryPoint;
@@ -91,8 +88,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/oauth2/**", "/login/","/api/v1/auth/**").permitAll()
                 .antMatchers("/api/v1/products/**").permitAll()
                 .antMatchers("/api/v1/categories/**").permitAll()
-                .antMatchers("/api/v1/orders").hasRole("ADMIN")
-                .antMatchers(HttpMethod.DELETE, "/api/v1/order/**").hasRole("ADMIN")
+                .antMatchers("/api/v1/orders").hasAuthority("ADMIN")
+                .antMatchers("/api/v1/sales/**").permitAll()
+                .antMatchers("/api/v1/sale/**").hasAuthority("ADMIN")
+                .antMatchers("/api/v1/coupons/**").permitAll()
+                .antMatchers("/api/v1/coupon/**").hasAuthority("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/api/v1/order/**").hasAuthority("ADMIN")
                 //.antMatchers("/api/v1/user/active/**").permitAll()
                 //.antMatchers("/api/v1/products/**").permitAll()
                 //.antMatchers("/api/v1/media/**").permitAll()
