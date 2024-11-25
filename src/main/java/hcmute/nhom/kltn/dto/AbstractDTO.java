@@ -1,7 +1,6 @@
 package hcmute.nhom.kltn.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.AllArgsConstructor;

@@ -3,7 +3,6 @@ package hcmute.nhom.kltn.repository;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import hcmute.nhom.kltn.enums.RoleName;
 import hcmute.nhom.kltn.model.Role;
 
 /**

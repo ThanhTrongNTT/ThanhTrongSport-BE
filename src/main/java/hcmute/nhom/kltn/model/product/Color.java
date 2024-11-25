@@ -1,14 +1,10 @@
 package hcmute.nhom.kltn.model.product;
 
 import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import hcmute.nhom.kltn.model.Image;
 
 /**
  * Class Color.

@@ -1,7 +1,6 @@
 package hcmute.nhom.kltn.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import hcmute.nhom.kltn.dto.RoleDTO;
 import hcmute.nhom.kltn.model.Role;

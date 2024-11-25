@@ -1,18 +1,15 @@
 package hcmute.nhom.kltn.model;
 
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
-import hcmute.nhom.kltn.enums.RoleName;
 
 /**
  * Class Role.
@@ -38,9 +35,6 @@ public class Role extends AbstractAuditModel {
 
     @Column(name = "admin_flag")
     private Boolean adminFlag;
-
-//    @ManyToMany(mappedBy = "roles")
-//    private Set<User> users;
 
     @Column(name = "removal_flag", nullable = false, length = 1)
     private Boolean removalFlag = false;
