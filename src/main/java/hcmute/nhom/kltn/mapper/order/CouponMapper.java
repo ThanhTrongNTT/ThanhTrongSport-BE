@@ -1,7 +1,8 @@
 package hcmute.nhom.kltn.mapper.order;
 
 import org.mapstruct.Mapper;
-import hcmute.nhom.kltn.dto.CouponDTO;
+import org.mapstruct.factory.Mappers;
+import hcmute.nhom.kltn.dto.order.CouponDTO;
 import hcmute.nhom.kltn.mapper.AbstractMapper;
 import hcmute.nhom.kltn.model.product.Coupon;
 
@@ -12,4 +13,5 @@ import hcmute.nhom.kltn.model.product.Coupon;
  **/
 @Mapper()
 public interface CouponMapper extends AbstractMapper<CouponDTO, Coupon> {
+    CouponMapper INSTANCE = Mappers.getMapper(CouponMapper.class);
 }

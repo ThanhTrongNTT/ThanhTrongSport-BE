@@ -1,7 +1,6 @@
 package hcmute.nhom.kltn.model.order;
 
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -14,7 +13,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import hcmute.nhom.kltn.model.AbstractAuditModel;
-import hcmute.nhom.kltn.model.product.Price;
 import hcmute.nhom.kltn.model.product.ProductItem;
 
 /**
@@ -44,6 +42,6 @@ public class OrderItem extends AbstractAuditModel {
     @ManyToOne(fetch = javax.persistence.FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
-    @Embedded
-    private Price subTotal;
+    @Column(name = "sub_total")
+    private Double subTotal;
 }

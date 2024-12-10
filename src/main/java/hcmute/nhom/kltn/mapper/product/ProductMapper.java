@@ -1,13 +1,10 @@
-package hcmute.nhom.kltn.mapper;
+package hcmute.nhom.kltn.mapper.product;
 
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
-import hcmute.nhom.kltn.dto.ProductDTO;
-import hcmute.nhom.kltn.mapper.helper.CycleAvoidingMappingContext;
-import hcmute.nhom.kltn.model.Product;
+import hcmute.nhom.kltn.dto.product.ProductDTO;
+import hcmute.nhom.kltn.mapper.AbstractMapper;
+import hcmute.nhom.kltn.model.product.Product;
 
 /**
  * Class ProductMapper.

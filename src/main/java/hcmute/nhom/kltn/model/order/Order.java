@@ -20,16 +20,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import hcmute.nhom.kltn.model.AbstractAuditModel;
-import hcmute.nhom.kltn.model.User;
 import hcmute.nhom.kltn.model.Address;
-import hcmute.nhom.kltn.model.product.Price;
+import hcmute.nhom.kltn.model.User;
+import hcmute.nhom.kltn.model.product.Coupon;
 
 /**
  * Class Order.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @Entity
 @Table(name = "t_orders")
@@ -45,39 +43,37 @@ public class Order extends AbstractAuditModel {
     private String id;
     @Column(name = "products_count")
     private int productsCount;
+    @Column(name = "note")
+    private String note;
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItem> items;
-    @OneToOne
-    @JoinColumn(name = "address_id", unique = true)
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "addressData", column = @Column(name = "addressData")),
+            @AttributeOverride(name = "province", column = @Column(name = "province")),
+            @AttributeOverride(name = "district", column = @Column(name = "district")),
+            @AttributeOverride(name = "ward", column = @Column(name = "ward")),
+            @AttributeOverride(name = "phone", column = @Column(name = "phone")),
+            @AttributeOverride(name = "email", column = @Column(name = "email")),
+            @AttributeOverride(name = "lastName", column = @Column(name = "last_name")),
+            @AttributeOverride(name = "firstName", column = @Column(name = "first_name"))
+    })
     private Address address;
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "value", column = @Column(name = "subtotal_value")),
-            @AttributeOverride(name = "currency", column = @Column(name = "subtotal_currency")),
-            @AttributeOverride(name = "unit", column = @Column(name = "subtotal_unit"))
-    })
-    private Price subtotal;
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "value", column = @Column(name = "tax_value")),
-            @AttributeOverride(name = "currency", column = @Column(name = "tax_currency")),
-            @AttributeOverride(name = "unit", column = @Column(name = "tax_unit"))
-    })
-    private Price tax;
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "value", column = @Column(name = "total_value")),
-            @AttributeOverride(name = "currency", column = @Column(name = "total_currency")),
-            @AttributeOverride(name = "unit", column = @Column(name = "total_unit"))
-    })
-    private Price total;
+
+    @Column(name = "sub_total")
+    private Double subTotal;
+    @Column(name = "tax")
+    private Double tax;
+    @Column(name = "total")
+    private Double total;
     @Column(name = "status")
     private String status;
     @Column(name = "payment_method")
     private String paymentMethod;
+    @OneToOne
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
     @Column(name = "is_paid")
     private Boolean isPaid;
 }

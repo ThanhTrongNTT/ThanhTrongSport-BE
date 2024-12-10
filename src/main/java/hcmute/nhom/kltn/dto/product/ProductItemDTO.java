@@ -1,11 +1,11 @@
-package hcmute.nhom.kltn.dto;
+package hcmute.nhom.kltn.dto.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import hcmute.nhom.kltn.model.product.Color;
-import hcmute.nhom.kltn.model.product.Prices;
+import hcmute.nhom.kltn.dto.AbstractDTO;
+import hcmute.nhom.kltn.dto.ImageDTO;
 
 /**
  * Class ProductItemDTo.
@@ -20,11 +20,9 @@ import hcmute.nhom.kltn.model.product.Prices;
 @NoArgsConstructor
 public class ProductItemDTO extends AbstractDTO {
     private String id;
-    private Color color;
-    private SizeDTO size;
-    private Prices price;
-    private StockDTO stock;
-    private SalesDTO sales;
+    private ColorDTO color;
+    private String size;
+    private Integer stock;
     private ImageDTO mainImage;
     private ProductDTO product;
 }

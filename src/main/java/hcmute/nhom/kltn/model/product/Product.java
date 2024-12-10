@@ -1,12 +1,9 @@
 package hcmute.nhom.kltn.model.product;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -14,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +19,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import hcmute.nhom.kltn.model.AbstractAuditModel;
-import hcmute.nhom.kltn.model.Image;
 
 /**
  * Class Product.
@@ -48,27 +45,23 @@ public class Product extends AbstractAuditModel {
     private String longDescription;
     @Column(name = "long_description")
     private String washingInformation;
-    @Column(name = "product_name", nullable = false)
+    @Column(name = "product_name", nullable = false, unique = true)
     private String productName;
-    @Column(name = "slug", nullable = false)
+    @Column(name = "slug", nullable = false, unique = true)
     private String slug;
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "value", column = @Column(name = "price")),
-            @AttributeOverride(name = "unit", column = @Column(name = "unit")),
-            @AttributeOverride(name = "currency", column = @Column(name = "currency"))
-    })
-    private Price price;
+    @Column(name = "base_price", nullable = false)
+    private BigDecimal basePrice;
+    @Column(name = "promo_price", nullable = false)
+    private BigDecimal promoPrice;
     @ManyToOne
     @JoinColumn(name = "gender_id")
     private Category gender;
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ProductItem> listProductItem;
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Image> subImages = new ArrayList<>();
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sales_id")
+    private Sales sales;
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Rating> ratings;
     @Column(name = "removal_flag", nullable = false)

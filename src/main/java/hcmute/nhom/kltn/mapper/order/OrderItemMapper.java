@@ -1,8 +1,9 @@
-package hcmute.nhom.kltn.mapper;
+package hcmute.nhom.kltn.mapper.order;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import hcmute.nhom.kltn.dto.OrderItemDTO;
+import hcmute.nhom.kltn.dto.order.OrderItemDTO;
+import hcmute.nhom.kltn.mapper.AbstractMapper;
 import hcmute.nhom.kltn.model.order.OrderItem;
 
 /**

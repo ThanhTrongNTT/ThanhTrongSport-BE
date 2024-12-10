@@ -1,28 +1,26 @@
-package hcmute.nhom.kltn.dto;
+package hcmute.nhom.kltn.dto.order;
 
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import hcmute.nhom.kltn.dto.AbstractDTO;
 
 /**
- * Class SalesDTO.
+ * Class CouponDTO.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SalesDTO extends AbstractDTO {
+public class CouponDTO extends AbstractDTO {
     private String id;
-    private String name;
-    private String description;
     private String code;
     private double discount;
-    private Date startDate;
-    private Date endDate;
+    private String description;
+    private String startDate;
+    private String endDate;
+    private Boolean removalFlag;
 }

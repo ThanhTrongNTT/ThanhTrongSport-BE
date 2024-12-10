@@ -1,5 +1,7 @@
 package hcmute.nhom.kltn.model.product;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,14 +34,14 @@ public class Sales extends AbstractAuditModel {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(name = "id", nullable = false)
     private String id;
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String name;
     @Column(name = "description")
     private String description;
-    @Column(name = "code")
+    @Column(name = "code", unique = true)
     private String code;
     @Column(name = "discount")
-    private double discount;
+    private BigDecimal discount;
     @Column(name = "start_date")
     private Date startDate;
     @Column(name = "end_date")
