@@ -10,7 +10,7 @@
     </parent>
     <groupId>hcmute.nhom</groupId>
     <artifactId>KLTN_BE</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>KLTN_BE</name>
     <description>KLTN_BE</description>
     <properties>
