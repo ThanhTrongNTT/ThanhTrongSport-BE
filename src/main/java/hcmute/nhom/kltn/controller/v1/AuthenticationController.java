@@ -108,7 +108,7 @@ public class AuthenticationController extends AbstractController {
                         ApiResponse.<JwtAuthenticationResponse>builder()
                                 .result(false)
                                 .code(HttpStatus.BAD_REQUEST.toString())
-                                .message("The email was wrong!")
+                                .message("Người dùng không xuất hiện trong hệ thống!")
                                 .build(),
                         HttpStatus.BAD_REQUEST);
             }
@@ -199,7 +199,7 @@ public class AuthenticationController extends AbstractController {
             return ResponseEntity.ok().body(
                     ApiResponse.<Boolean>builder()
                             .result(result)
-                            .message("Forgot password successfully")
+                            .message("Kiểm tra mail để lấy lại mật khẩu!")
                             .build());
         } catch (Exception e) {
             logger.error("{}", e.getMessage());

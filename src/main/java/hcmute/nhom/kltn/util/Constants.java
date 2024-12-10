@@ -1,5 +1,7 @@
 package hcmute.nhom.kltn.util;
 
+import java.math.BigDecimal;
+
 /**
  * Class Constants.
  *
@@ -15,6 +17,8 @@ public class Constants {
     public static final int STAGE_LOGIN_SUCCESS = 1;
     public static final boolean REMOVAL_FLAG_FALSE = false;
     public static final boolean REMOVAL_FLAG_TRUE = true;
+    public static final BigDecimal HUNDRED = new BigDecimal(100);
+    public static final BigDecimal THOUSAND = new BigDecimal(1000);
 
     public static final String DEFAULT_AVATAR =
             "https://firebasestorage.googleapis.com/v0/b/kltn-91a43.appspot.com/o/image%2Fdefault-avatar.png?alt=media";

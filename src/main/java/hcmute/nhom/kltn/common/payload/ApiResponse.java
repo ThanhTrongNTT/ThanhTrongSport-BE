@@ -8,8 +8,6 @@ import lombok.Setter;
  * Class ApiResponse.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @Getter
 @Setter

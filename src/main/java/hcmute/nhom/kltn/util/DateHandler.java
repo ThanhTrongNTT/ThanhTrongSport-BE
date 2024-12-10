@@ -30,7 +30,7 @@ public class DateHandler extends StdDeserializer<Date> {
                 return null;
             }
             // support different formats
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 //            if (date.contains("-")) {
 //                simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 //            } else if (date.contains(":")) {

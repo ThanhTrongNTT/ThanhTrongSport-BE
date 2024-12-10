@@ -85,15 +85,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/oauth2/**", "/login/","/api/v1/auth/**").permitAll()
-                .antMatchers("/api/v1/products/**").permitAll()
-                .antMatchers("/api/v1/categories/**").permitAll()
-                .antMatchers("/api/v1/orders").hasAuthority("ADMIN")
-                .antMatchers("/api/v1/sales/**").permitAll()
-                .antMatchers("/api/v1/sale/**").hasAuthority("ADMIN")
-                .antMatchers("/api/v1/coupons/**").permitAll()
-                .antMatchers("/api/v1/coupon/**").hasAuthority("ADMIN")
-                .antMatchers(HttpMethod.DELETE, "/api/v1/order/**").hasAuthority("ADMIN")
+                // Cho phép các endpoint công khai
+                .antMatchers(
+                        "/oauth2/**",
+                        "/login/**",
+                        "/api/v1/auth/**",
+                        "/api/v1/products/**",
+                        "/api/v1/categories/**",
+                        "/api/v1/sales/**",
+                        "/api/v1/coupons/**"
+                ).permitAll()
+                // Yêu cầu quyền ADMIN cho các endpoint cần quản lý
+                .antMatchers(
+                        "/api/v1/users/**",
+                        "/api/v1/orders",
+                        "/api/v1/sale/**",
+                        "/api/v1/color/**",
+                        "/api/v1/coupon/**"
+                ).hasAuthority("ADMIN")
+                // Bảo vệ endpoint kích hoạt tài khoản người dùng
+                .antMatchers(HttpMethod.POST, "/user/active/**").hasAuthority("ADMIN")
                 //.antMatchers("/api/v1/user/active/**").permitAll()
                 //.antMatchers("/api/v1/products/**").permitAll()
                 //.antMatchers("/api/v1/media/**").permitAll()
