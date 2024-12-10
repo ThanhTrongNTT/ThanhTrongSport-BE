@@ -21,7 +21,7 @@ public class AddressDTO extends AbstractDTO {
     private String address;
     private String ward;
     private String district;
-    private String city;
+    private String province;
     private String phone;
     private String email;
     private String lastName;

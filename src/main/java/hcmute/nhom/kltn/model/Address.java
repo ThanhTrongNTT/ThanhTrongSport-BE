@@ -1,6 +1,8 @@
 package hcmute.nhom.kltn.model;
 
+import java.io.Serializable;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -21,37 +23,18 @@ import org.hibernate.annotations.GenericGenerator;
  * @function_id:
  * @version:
  **/
-@Entity
-@Table(name = "t_address")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Address extends AbstractAuditModel {
-    @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "id", nullable = false)
-    private String id;
-    @Column(name = "address")
-    private String address;
-    @Column(name = "ward")
+@Embeddable
+public class Address {
+    private String addressData;
     private String ward;
-    @Column(name = "district")
     private String district;
-    @Column(name = "city")
-    private String city;
-    @Column(name = "phone")
+    private String province;
     private String phone;
-    @Column(name = "email")
     private String email;
-    @Column(name = "last_name")
     private String lastName;
-    @Column(name = "first_name")
     private String firstName;
-    @Column(name = "is_default")
-    private String isDefault;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
 }
