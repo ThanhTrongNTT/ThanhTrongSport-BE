@@ -1,9 +1,10 @@
-package hcmute.nhom.kltn.dto;
+package hcmute.nhom.kltn.dto.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import hcmute.nhom.kltn.dto.AbstractDTO;
 
 /**
  * Class RatingDTO.
