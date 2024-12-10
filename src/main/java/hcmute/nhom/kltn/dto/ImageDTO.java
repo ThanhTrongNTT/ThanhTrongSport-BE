@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import hcmute.nhom.kltn.dto.product.ProductDTO;
 
 /**
  * Class ImageDTO.
@@ -22,4 +23,5 @@ public class ImageDTO extends AbstractDTO {
     private String fileType;
     private String url;
     private ProductDTO product;
+    private Boolean removalFlag;
 }

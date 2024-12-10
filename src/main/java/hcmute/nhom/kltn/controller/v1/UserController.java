@@ -18,25 +18,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import hcmute.nhom.kltn.common.payload.ApiResponse;
 import hcmute.nhom.kltn.common.payload.ChangePasswordRequest;
+import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
+import hcmute.nhom.kltn.exception.SystemErrorException;
 import hcmute.nhom.kltn.service.UserService;
+import hcmute.nhom.kltn.service.session.SessionManagementService;
 import hcmute.nhom.kltn.util.Constants;
+import hcmute.nhom.kltn.util.SessionConstants;
 
 /**
  * Class UserController.
  *
  * @author: ThanhTrong
- * @function_id:
- * @version:
  **/
 @RestController
 @RequiredArgsConstructor
 public class UserController extends AbstractController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
+    private final SessionManagementService sessionService;
 
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse<Page<UserDTO>>> getAllUser(
+    public ResponseEntity<ApiResponse<PaginationDTO<UserDTO>>> getAllUser(
             HttpServletRequest request,
             @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
             int pageNo,
@@ -49,18 +52,25 @@ public class UserController extends AbstractController {
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getAllUser"));
         Page<UserDTO> userDTOPage = userService.getPaging(pageNo, pageSize, sortBy, sortDir);
+        PaginationDTO<UserDTO> userDTOPagination = PaginationDTO.<UserDTO>builder()
+                .items(userDTOPage.getContent())
+                .totalPages(userDTOPage.getTotalPages())
+                .totalItems(userDTOPage.getTotalElements())
+                .itemCount(userDTOPage.getNumberOfElements())
+                .currentPage(userDTOPage.getNumber())
+                .build();
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllUser"));
         return ResponseEntity.ok(
-                ApiResponse.<Page<UserDTO>>builder()
+                ApiResponse.<PaginationDTO<UserDTO>>builder()
                         .result(true)
                         .code(HttpStatus.OK.toString())
-                        .data(userDTOPage)
+                        .data(userDTOPagination)
                         .message("Get all user successfully!")
                         .build());
     }
 
     @GetMapping("/users/search-by-name")
-    public ResponseEntity<ApiResponse<Page<UserDTO>>> searchUser(
+    public ResponseEntity<ApiResponse<PaginationDTO<UserDTO>>> searchUser(
             HttpServletRequest request,
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "pageNo", defaultValue = Constants.DEFAULT_PAGE_NUMBER, required = false)
@@ -73,10 +83,10 @@ public class UserController extends AbstractController {
             String sortDir
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "searchUser"));
-        Page<UserDTO> userDTOPage = userService.searchUser(keyword, pageNo, pageSize, sortBy, sortDir);
+        PaginationDTO<UserDTO> userDTOPage = userService.searchUser(keyword, pageNo, pageSize, sortBy, sortDir);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "searchUser"));
         return ResponseEntity.ok(
-                ApiResponse.<Page<UserDTO>>builder()
+                ApiResponse.<PaginationDTO<UserDTO>>builder()
                         .result(true)
                         .code(HttpStatus.OK.toString())
                         .data(userDTOPage)
@@ -122,11 +132,11 @@ public class UserController extends AbstractController {
     public ResponseEntity<ApiResponse<UserDTO>> updateUser(
             HttpServletRequest request,
             HttpSession session,
+            @PathVariable("email") String email,
             @RequestBody UserDTO userDTO
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "updateUser"));
-        String userEmail = (String) session.getAttribute("email");
-        UserDTO result = userService.updateUserProfile(userEmail, userDTO);
+        UserDTO result = userService.updateUserProfile(email, userDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "updateUser"));
         return ResponseEntity.ok(
                 ApiResponse.<UserDTO>builder()
@@ -140,10 +150,14 @@ public class UserController extends AbstractController {
     @DeleteMapping("/user/{id}")
     public ResponseEntity<ApiResponse<UserDTO>> deleteUser(
             HttpServletRequest request,
-            @PathVariable("id") String id
+            @PathVariable("id") String id,
+            @RequestParam("userId") String userId
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "deleteUser"));
-        userService.delete(id);
+        if (userId.equals(id)) {
+            throw new SystemErrorException("Không thể xóa chính mình!");
+        }
+        userService.deleteUser(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "deleteUser"));
         return ResponseEntity.ok(
                 ApiResponse.<UserDTO>builder()
@@ -183,7 +197,7 @@ public class UserController extends AbstractController {
                         .result(true)
                         .code(HttpStatus.OK.toString())
                         .data(result)
-                        .message("Active user successfully!")
+                        .message("Kích hoạt thành công!")
                         .build());
     }
 
@@ -200,7 +214,7 @@ public class UserController extends AbstractController {
                         .result(true)
                         .code(HttpStatus.OK.toString())
                         .data(result)
-                        .message("Deactive user successfully!")
+                        .message("Hủy kích hoạt thành công!")
                         .build());
     }
 }

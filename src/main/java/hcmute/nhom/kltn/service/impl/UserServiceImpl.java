@@ -9,24 +9,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.common.payload.ChangePasswordRequest;
-import hcmute.nhom.kltn.dto.MediaFileDTO;
+import hcmute.nhom.kltn.dto.ImageDTO;
+import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.RoleDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.dto.UserProfileDTO;
 import hcmute.nhom.kltn.email.EmailSender;
 import hcmute.nhom.kltn.enums.RoleName;
+import hcmute.nhom.kltn.exception.NotFoundException;
 import hcmute.nhom.kltn.exception.SystemErrorException;
 import hcmute.nhom.kltn.mapper.UserMapper;
 import hcmute.nhom.kltn.model.User;
 import hcmute.nhom.kltn.repository.UserRepository;
 import hcmute.nhom.kltn.service.ClientService;
-import hcmute.nhom.kltn.service.MediaFileService;
+import hcmute.nhom.kltn.service.ImageService;
 import hcmute.nhom.kltn.service.RoleService;
 import hcmute.nhom.kltn.service.UserProfileService;
 import hcmute.nhom.kltn.service.UserService;
@@ -49,7 +50,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
 
     private final UserProfileService userProfileService;
 
-    private final MediaFileService mediaFileService;
+    private final ImageService mediaFileService;
 
     private final UserRepository userRepository;
 
@@ -59,6 +60,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
 
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
+    private final ImageService imageService;
 
     @Override
     public UserDTO findByUsername(String username) {
@@ -97,6 +99,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
                 throw new SystemErrorException("User already exists");
             }
             UserProfileDTO userProfileDTO = new UserProfileDTO();
+            userProfileDTO.setName(userDTO.getUserProfile().getName());
             userProfileDTO.setRemovalFlag(false);
             userProfileDTO.setAvatar(mediaFileService.findByFileName("default-avatar.png"));
             userProfileDTO = userProfileService.save(userProfileDTO);
@@ -159,8 +162,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
                 logger.info(getMessageEnd(SERVICE, methodName));
                 return false;
             }
-            user.getUserProfile().setFirstName(userDTO.getUserProfile().getFirstName());
-            user.getUserProfile().setLastName(userDTO.getUserProfile().getLastName());
+            user.getUserProfile().setName(userDTO.getUserProfile().getName());
             user.getUserProfile().setAvatar(userDTO.getUserProfile().getAvatar());
             save(user);
             logger.debug(getMessageOutputParam(SERVICE, "result", true));
@@ -194,7 +196,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
         } catch (Exception e) {
             logger.error("Error when active user", e);
             logger.info(getMessageEnd(SERVICE, methodName));
-            throw new SystemErrorException("Error when active user");
+            throw new SystemErrorException("Có lỗi khi kích hoạt tài khoản");
         }
     }
 
@@ -219,12 +221,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
         } catch (Exception e) {
             logger.error("Error when deactive user", e);
             logger.info(getMessageEnd(SERVICE, methodName));
-            throw new SystemErrorException("Error when adective user");
+            throw new SystemErrorException("Có lỗi khi vô hiệu hóa tài khoản");
         }
     }
 
     @Override
-    public Page<UserDTO> searchUser(String keyword, int pageNo, int pageSize, String sortBy, String sortDir) {
+    public PaginationDTO<UserDTO> searchUser(String keyword, int pageNo, int pageSize, String sortBy, String sortDir) {
         String methodName = "searchUser";
         logger.info(getMessageStart(SERVICE, methodName));
         logger.debug(getMessageInputParam(SERVICE, "keyword", keyword));
@@ -237,9 +239,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
             List<UserDTO> listDTO = list.stream()
                     .map(item -> getMapper().toDto(item, getCycleAvoidingMappingContext())).collect(Collectors.toList());
             Pageable pageRequest = Utilities.createPageRequestUsing(pageNo, pageSize);
+            Page<UserDTO> pageDTO = new PageImpl<>(listDTO, pageRequest, listDTO.size());
             logger.debug(getMessageOutputParam(SERVICE, "pageDTO", listDTO));
             logger.info(getMessageEnd(SERVICE, methodName));
-            return new PageImpl<>(listDTO, pageRequest, listDTO .size());
+            return PaginationDTO.<UserDTO>builder()
+                    .items(listDTO)
+                    .currentPage(pageNo)
+                    .pageSize(pageSize)
+                    .totalItems(pageDTO.getTotalElements())
+                    .itemCount(listDTO.size())
+                    .totalPages(pageDTO.getTotalPages())
+                    .build();
         } catch (Exception e) {
             logger.error("Error when search user", e);
             logger.info(getMessageEnd(SERVICE, methodName));
@@ -281,7 +291,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
                     logger.info(getMessageEnd(SERVICE, methodName));
                     return false;
                 }
-                MediaFileDTO mediaFileDTO = mediaFileService.save(userDTO.getUserProfile().getAvatar());
+                ImageDTO mediaFileDTO = mediaFileService.save(userDTO.getUserProfile().getAvatar());
                 user.getUserProfile().setAvatar(mediaFileDTO);
                 UserProfileDTO userProfileDTO = userProfileService.save(userDTO.getUserProfile());
                 user.setUserProfile(userProfileDTO);
@@ -357,9 +367,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
             // Find User
             UserDTO user = findByEmail(email);
             if (Objects.isNull(user)) {
-                logger.error("User not found");
+                logger.error("Người dùng không có trong hệ thống");
                 logger.info(getMessageEnd(SERVICE, methodName));
-                throw new SystemErrorException("User not found");
+                throw new NotFoundException("Người dùng không có trong hệ thống");
             }
             String password = Utilities.generateTempPwd(8);
             user.setPassword(passwordEncoder.encode(password));
@@ -367,7 +377,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
             // Execute send email
             clientService.forgotPassword(user, password);
             return true;
-        } catch (Exception e) {
+        } catch (NotFoundException e) {
+            logger.error(e.getMessage(), e);
+            logger.info(getMessageEnd(SERVICE, methodName));
+            throw new NotFoundException(e.getMessage());
+        }
+        catch (Exception e) {
             logger.error("Error when forgot password", e);
             logger.info(getMessageEnd(SERVICE, methodName));
             throw new SystemErrorException(e.getMessage());
@@ -428,6 +443,52 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
             logger.error("Error when update user profile", e);
             logger.info(getMessageEnd(SERVICE, methodName));
             throw new SystemErrorException("Error when update user profile");
+        }
+    }
+
+    @Override
+    public UserDTO findUserByEmailAndProviderId(String email, String providerId) {
+        String method = "findUserByEmailAndProviderId";
+        logger.info(getMessageStart(SERVICE, method));
+        logger.debug(getMessageInputParam(SERVICE, "email", email));
+        logger.debug(getMessageInputParam(SERVICE, "providerId", providerId));
+        try {
+            User user = getRepository().findByEmailAndProviderId(email, providerId)
+                    .orElse(null);
+            UserDTO userDTO = getMapper().toDto(user, getCycleAvoidingMappingContext());
+            logger.debug(getMessageOutputParam(SERVICE, "result", userDTO));
+            logger.info(getMessageEnd(SERVICE, method));
+            return userDTO;
+        } catch (NotFoundException e) {
+            logger.error(e.getMessage(), e);
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new SystemErrorException(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(String id) {
+        logger.info(getMessageStart("UserService", "Delete User"));
+        logger.debug(getMessageInputParam("UserService", "user - id", id));
+        UserDTO userDTO = findById(id);
+        if (Objects.isNull(userDTO)) {
+            throw new NotFoundException("User not found. Id: " + id);
+        }
+        try {
+            getRepository().deleteRoleUserByUserId(id);
+            getRepository().deleteOrderItemByUserId(id);
+            getRepository().deleteOrderUserByUserId(id);
+            //imageService.delete(userDTO.getUserProfile().getAvatar());
+            userProfileService.delete(userDTO.getUserProfile());
+            getRepository().deleteById(id);
+            logger.info(getMessageEnd("UserService", "Delete DTO"));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            logger.info(getMessageEnd("UserService", "Delete DTO"));
+            throw new SystemErrorException("Delete not success. Error: " + e.getMessage());
         }
     }
 

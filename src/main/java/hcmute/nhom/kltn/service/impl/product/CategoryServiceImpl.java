@@ -21,6 +21,7 @@ import hcmute.nhom.kltn.model.product.Category;
 import hcmute.nhom.kltn.repository.product.CategoryRepository;
 import hcmute.nhom.kltn.service.impl.AbstractServiceImpl;
 import hcmute.nhom.kltn.service.product.CategoryService;
+import hcmute.nhom.kltn.service.product.ProductService;
 
 /**
  * Class CategoryServiceImpl.
@@ -34,6 +35,7 @@ public class CategoryServiceImpl extends AbstractServiceImpl<CategoryRepository,
     private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
     private final String BL_NO = "CategoryService";
     private final CategoryRepository categoryRepository;
+    private final ProductService productService;
 
     @Override
     public CategoryRepository getRepository() {
@@ -86,25 +88,18 @@ public class CategoryServiceImpl extends AbstractServiceImpl<CategoryRepository,
         try {
             CategoryDTO category = findById(id);
             if (category == null) {
-                throw new SystemErrorException("Category not found");
-            }
-            List<CategoryDTO> children = getChildCategories(id);
-            if (!children.isEmpty()) {
-                for (CategoryDTO child : children) {
-                    child.setLevel(child.getLevel() + 1);
-                    updateCategory(child.getId(), child);
-                }
+                throw new SystemErrorException("Không tìm thấy danh mục!");
             }
             category.setCategoryName(categoryDTO.getCategoryName());
-            category.setLevel(categoryDTO.getLevel());
             category.setLocale(categoryDTO.getLocale());
-            category = save(category);
+            Category categoryUpdate = getRepository().save(getMapper().toEntity(category, getCycleAvoidingMappingContext()));
+            category = getMapper().toDto(categoryUpdate, getCycleAvoidingMappingContext());
             logger.debug(getMessageOutputParam(BL_NO, "category", category));
             logger.info(getMessageEnd(BL_NO, methodName));
             return category;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            throw new SystemErrorException("Update category failed");
+            throw new SystemErrorException("Cập nhật danh mục lỗi!");
         }
     }
 
@@ -228,6 +223,25 @@ public class CategoryServiceImpl extends AbstractServiceImpl<CategoryRepository,
             logger.error(e.getMessage());
             logger.info(getMessageEnd(BL_NO, method));
             throw new SystemErrorException("Get child categories failed");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void delete(String id) {
+        logger.info(getMessageStart("AbstractService", "Delete DTO"));
+        logger.debug(getMessageInputParam("AbstractService", "dto - id", id));
+        if (Objects.isNull(findById(id))) {
+            throw new NotFoundException("DTO not found. Id: " + id);
+        }
+        try {
+            productService.deleteProductByCategoryId(id);
+            getRepository().deleteById(id);
+            logger.info(getMessageEnd("AbstractService", "Delete DTO"));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            logger.info(getMessageEnd("AbstractService", "Delete DTO"));
+            throw new SystemErrorException("Delete not success. Error: " + e.getMessage());
         }
     }
 }

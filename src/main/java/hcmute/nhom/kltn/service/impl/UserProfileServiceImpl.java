@@ -1,12 +1,10 @@
 package hcmute.nhom.kltn.service.impl;
 
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import hcmute.nhom.kltn.dto.UserProfileDTO;
-import hcmute.nhom.kltn.exception.NotFoundException;
 import hcmute.nhom.kltn.exception.SystemErrorException;
 import hcmute.nhom.kltn.mapper.UserProfileMapper;
 import hcmute.nhom.kltn.model.UserProfile;
@@ -45,7 +43,7 @@ public class UserProfileServiceImpl
         logger.info(getMessageStart(SERVICE, method));
         logger.debug(getMessageInputParam(SERVICE, "email", email));
         try {
-            UserProfile userProfile = getRepository().findByEmail(email);
+            UserProfile userProfile = getRepository().findByEmail(email).orElse(null);
             logger.debug(getMessageOutputParam(SERVICE, "userProfile", userProfile));
             logger.info(getMessageEnd(SERVICE, method));
             return getMapper().toDto(userProfile, getCycleAvoidingMappingContext());

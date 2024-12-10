@@ -3,6 +3,7 @@ package hcmute.nhom.kltn.service;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import hcmute.nhom.kltn.common.payload.ChangePasswordRequest;
+import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.model.User;
 
@@ -62,7 +63,7 @@ public interface UserService extends AbstractService<UserDTO, User> {
      * @param sortDir String
      * @return Page<UserDTO>
      */
-    Page<UserDTO> searchUser(String keyword, int pageNo, int pageSize, String sortBy, String sortDir);
+    PaginationDTO<UserDTO> searchUser(String keyword, int pageNo, int pageSize, String sortBy, String sortDir);
 
     /**
      * getAllUser.
@@ -97,4 +98,8 @@ public interface UserService extends AbstractService<UserDTO, User> {
     Boolean changePassword(ChangePasswordRequest changePasswordRequest);
 
     UserDTO updateUserProfile(String email, UserDTO userDTO);
+
+    UserDTO findUserByEmailAndProviderId(String email, String providerId);
+
+    void deleteUser(String id);
 }
