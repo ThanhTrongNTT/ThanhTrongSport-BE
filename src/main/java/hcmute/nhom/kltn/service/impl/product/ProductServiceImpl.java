@@ -245,11 +245,15 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
             } else if (!genderName.isEmpty()) {
                 products = productRepository.searchProductByGender(genderName, pageRequest);
             } else if (categoryName.isEmpty() || genderName.isEmpty()) {
-               products = productRepository.findAll( pageRequest);
-            }
+               products = productRepository.findAll(pageRequest);
+           }
             productDTOS =
                     products.getContent().stream().map(category -> getMapper().toDto(category, getCycleAvoidingMappingContext()))
                             .collect(Collectors.toList());
+           productDTOS.forEach(productDTO -> {
+               List<ImageDTO> subImages = imageService.findByProductId(productDTO.getId());
+               productDTO.setSubImages(subImages);
+              });
             logger.info(getMessageEnd(BL_NO, methodName));
             return PaginationDTO.<ProductDTO>builder()
                     .items(productDTOS)

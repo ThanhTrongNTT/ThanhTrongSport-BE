@@ -6,6 +6,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,11 +38,13 @@ public class FirebaseStorageService {
     @Value("${firebase.private-key-path}")
     private String privateKeyPath;
 
+    @Value("${firebase.private-key}")
+    private String privateKey;
+
     public String uploadFile(File file, String fileType) {
         BlobId blobId = BlobId.of(bucketName, file.getName());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(fileType).build();
-        Resource resource = new ClassPathResource(privateKeyPath);
-        try (InputStream inputStream = resource.getInputStream()) {
+        try (InputStream inputStream = new ByteArrayInputStream(privateKey.getBytes())) {
             Credentials credentials = GoogleCredentials.fromStream(inputStream);
             Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
             byte[] bytes = Files.readAllBytes(file.toPath());
