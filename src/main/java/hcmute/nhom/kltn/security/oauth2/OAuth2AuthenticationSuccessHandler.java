@@ -89,36 +89,32 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         //response.setContentType("application/json;charset=UTF-8");
         //response.getWriter().write(jsonResponse);
         //response.getWriter().flush();
-        String targetUrl = determineTargetUrl(request, response);
+
         JwtAuthenticationResponse token = jwtProvider.createToken(authentication);
-
-        ResponseCookie isOAuth2 = ResponseCookie.from("oAuth2", String.valueOf(true))
-                .httpOnly(false)
-                .secure(true)
-                .sameSite("None")
-                .path("/")
-                .maxAge(3600) // Thời gian sống của accessToken
-                .build();
-
-        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", token.getAccessToken())
-                .httpOnly(false)
-                .secure(true)
-                .sameSite("None")
-                .path("/")
-                .maxAge(3600) // Thời gian sống của accessToken
-                .build();
-
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
-                .httpOnly(false)
-                .secure(true)
-                .sameSite("None")
-                .path("/")
-                .maxAge(86400) // Thời gian sống của refreshToken
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, isOAuth2.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        //ResponseCookie isOAuth2 = ResponseCookie.from("oAuth2", String.valueOf(true))
+        //        .httpOnly(false)
+        //        .secure(true)
+        //        .sameSite("None")
+        //        .path("/")
+        //        .maxAge(3600) // Thời gian sống của accessToken
+        //        .build();
+        //
+        //ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", token.getAccessToken())
+        //        .httpOnly(false)
+        //        .secure(true)
+        //        .sameSite("None")
+        //        .path("/")
+        //        .maxAge(3600) // Thời gian sống của accessToken
+        //        .build();
+        //
+        //ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
+        //        .httpOnly(false)
+        //        .secure(true)
+        //        .sameSite("None")
+        //        .path("/")
+        //        .maxAge(86400) // Thời gian sống của refreshToken
+        //        .build();
+        String targetUrl = determineTargetUrl(request, response) + "?oAuth2=true" + "?accessToken=" + token.getAccessToken() + "&refreshToken=" + token.getRefreshToken();
 
         if (response.isCommitted()) {
             logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
