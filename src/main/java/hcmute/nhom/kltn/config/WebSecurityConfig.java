@@ -104,7 +104,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/v1/coupon/**"
                 ).hasAuthority("ADMIN")
                 // Bảo vệ endpoint kích hoạt tài khoản người dùng
-                .antMatchers(HttpMethod.POST, "/user/active/**").hasAuthority("ADMIN")
+                .antMatchers(HttpMethod.POST, "/user/active/**").hasAnyAuthority()
                 //.antMatchers("/api/v1/user/active/**").permitAll()
                 //.antMatchers("/api/v1/products/**").permitAll()
                 //.antMatchers("/api/v1/media/**").permitAll()
