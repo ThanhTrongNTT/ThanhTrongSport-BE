@@ -114,7 +114,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         //        .path("/")
         //        .maxAge(86400) // Thời gian sống của refreshToken
         //        .build();
-        String targetUrl = determineTargetUrl(request, response) + "?oAuth2=true" + "?accessToken=" + token.getAccessToken() + "&refreshToken=" + token.getRefreshToken();
+        String targetUrl = determineTargetUrl(request, response) + "?oAuth2=true" + "&accessToken=" + token.getAccessToken() + "&refreshToken=" + token.getRefreshToken();
 
         if (response.isCommitted()) {
             logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
