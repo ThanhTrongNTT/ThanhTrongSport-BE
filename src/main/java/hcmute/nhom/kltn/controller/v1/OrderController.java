@@ -146,6 +146,7 @@ public class OrderController extends AbstractController {
         logger.info(getMessageStart(request.getRequestURL().toString(), "paidOrder"));
         OrderDTO orderDTO = orderService.findById(id);
         orderDTO.setIsPaid(true);
+        orderDTO.setStatus("PAID");
         orderService.save(orderDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "paidOrder"));
         return ResponseEntity.ok(
