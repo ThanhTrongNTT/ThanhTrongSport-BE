@@ -471,6 +471,10 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         logger.debug(getMessageInputParam(BL_NO, "productId", productId));
         try {
             List<ProductItemDTO> productItemDTOS = productItemService.findByProductId(productId);
+            productItemDTOS.forEach(productItemDTO -> {
+                List<ImageDTO> subImages = imageService.findByProductId(productItemDTO.getProduct().getId());
+                productItemDTO.getProduct().setSubImages(subImages);
+            });
             logger.debug(getMessageOutputParam(BL_NO, "productItemDTOS", productItemDTOS));
             logger.info(getMessageEnd(BL_NO, methodName));
             return productItemDTOS;
