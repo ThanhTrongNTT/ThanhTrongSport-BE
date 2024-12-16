@@ -23,6 +23,7 @@ public class CategoryDTO extends AbstractDTO {
     private Integer level;
     private String locale;
     private CategoryDTO parentCategory;
+    private Boolean removalFlag;
 
     @Override
     public String toString() {

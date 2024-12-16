@@ -25,4 +25,5 @@ public class ProductItemDTO extends AbstractDTO {
     private Integer stock;
     private ImageDTO mainImage;
     private ProductDTO product;
+    private Boolean removalFlag;
 }

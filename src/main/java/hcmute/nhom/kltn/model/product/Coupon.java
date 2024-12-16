@@ -1,9 +1,13 @@
 package hcmute.nhom.kltn.model.product;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import hcmute.nhom.kltn.model.AbstractAuditModel;
+import hcmute.nhom.kltn.model.order.Order;
 
 /**
  * Class Coupon.
@@ -44,6 +49,9 @@ public class Coupon extends AbstractAuditModel {
 
     @Column(name = "end_date", nullable = false)
     private String endDate;
+
+    @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
+    private List<Order> orders = new ArrayList<>();
 
     @Column(name = "removal_flag", nullable = false)
     private boolean removalFlag;

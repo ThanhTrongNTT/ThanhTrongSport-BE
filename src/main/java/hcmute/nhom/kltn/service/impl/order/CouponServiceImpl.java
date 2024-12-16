@@ -1,6 +1,7 @@
 package hcmute.nhom.kltn.service.impl.order;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.order.CouponDTO;
+import hcmute.nhom.kltn.dto.product.ColorDTO;
+import hcmute.nhom.kltn.exception.NotFoundException;
 import hcmute.nhom.kltn.exception.SystemErrorException;
 import hcmute.nhom.kltn.mapper.order.CouponMapper;
 import hcmute.nhom.kltn.model.product.Coupon;
@@ -57,7 +60,7 @@ public class CouponServiceImpl
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         try {
-            couponPage = couponRepository.findAll(pageable);
+            couponPage = couponRepository.getAllCoupon(pageable);
             List<CouponDTO> couponDTOS = couponPage.getContent().stream()
                     .map(coupon -> getMapper().toDto(coupon, getCycleAvoidingMappingContext()))
                     .collect(Collectors.toList());
@@ -83,7 +86,7 @@ public class CouponServiceImpl
         logger.info(getMessageStart(BL_NO, methodName));
         List<CouponDTO> couponDTOS;
         try {
-            List<Coupon> coupons = couponRepository.findAll();
+            List<Coupon> coupons = couponRepository.getAllCouponList();
             couponDTOS = coupons.stream()
                     .map(coupon -> getMapper().toDto(coupon, getCycleAvoidingMappingContext()))
                     .collect(Collectors.toList());
@@ -120,6 +123,26 @@ public class CouponServiceImpl
             logger.error(e.getMessage());
             logger.info(getMessageEnd(BL_NO, methodName));
             throw new SystemErrorException("Update coupon failed");
+        }
+    }
+
+    @Override
+    public void deleteCoupon(String id) {
+        String methodName = "deleteCoupon";
+        logger.info(getMessageStart(BL_NO, methodName));
+        logger.debug(getMessageInputParam(BL_NO, "id", id));
+        CouponDTO couponDTO = findById(id);
+        if (Objects.isNull(couponDTO)) {
+            throw new NotFoundException("Coupon not found. Id: " + id);
+        }
+        try {
+            couponDTO.setRemovalFlag(true);
+            getRepository().save(getMapper().toEntity(couponDTO, getCycleAvoidingMappingContext()));
+            logger.info(getMessageEnd(BL_NO, methodName));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.info(getMessageEnd(BL_NO, methodName));
+            throw new SystemErrorException("Delete coupon failed");
         }
     }
 }

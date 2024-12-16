@@ -20,5 +20,5 @@ public class ColorDTO extends AbstractDTO {
     private String name;
     private String code;
     private String displayCode;
-
+    private Boolean removalFlag;
 }

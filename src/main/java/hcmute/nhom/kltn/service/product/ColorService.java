@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.service.product;
 
+import java.util.List;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.product.ColorDTO;
 import hcmute.nhom.kltn.model.product.Color;
@@ -14,4 +15,8 @@ public interface ColorService extends AbstractService<ColorDTO, Color> {
     PaginationDTO<ColorDTO> getAllColorPagination(int pageNo, int pageSize, String sortBy, String sortDir);
 
     ColorDTO updateColor(String id, ColorDTO colorDTO);
+
+    List<ColorDTO> getAllColorList();
+
+    void deleteColor(String id);
 }

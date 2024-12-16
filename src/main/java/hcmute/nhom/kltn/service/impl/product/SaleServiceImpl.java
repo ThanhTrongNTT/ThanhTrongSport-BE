@@ -130,4 +130,24 @@ public class SaleServiceImpl
             throw new SystemErrorException("Update sale failed");
         }
     }
+
+    @Override
+    public void deleteSale(String saleId) {
+        String methodName = "deleteSale";
+        logger.info(getMessageStart(BL_NO, methodName));
+        logger.debug(getMessageInputParam(BL_NO, "saleId", saleId));
+        try {
+            SalesDTO salesDTO = findById(saleId);
+            if (Objects.isNull(salesDTO)) {
+                throw new SystemErrorException("Sale không tồn tại!");
+            }
+            salesDTO.setRemovalFlag(true);
+            getRepository().save(getMapper().toEntity(salesDTO, getCycleAvoidingMappingContext()));
+            logger.info(getMessageEnd(BL_NO, methodName));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.info(getMessageEnd(BL_NO, methodName));
+            throw new SystemErrorException(e.getMessage());
+        }
+    }
 }

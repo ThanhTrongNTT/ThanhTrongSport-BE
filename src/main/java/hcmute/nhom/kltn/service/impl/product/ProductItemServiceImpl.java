@@ -87,6 +87,26 @@ public class ProductItemServiceImpl
     }
 
     @Override
+    public void deleteProductItem(String id) {
+        String methodName = "deleteProductItem";
+        logger.info(getMessageStart(BL_NO, methodName));
+        logger.debug(getMessageInputParam(BL_NO, "id", id));
+        try {
+            ProductItemDTO productItem = findById(id);
+            if (Objects.isNull(productItem)) {
+                throw new NotFoundException("Không tim thấy sản phẩm con");
+            }
+            productItem.setRemovalFlag(true);
+            getRepository().save(getMapper().toEntity(productItem, getCycleAvoidingMappingContext()));
+            logger.info(getMessageEnd(BL_NO, methodName));
+        } catch (Exception e) {
+            logger.error("Delete product item failed!", e);
+            logger.info(getMessageEnd(BL_NO, methodName));
+            throw new SystemErrorException(e.getMessage());
+        }
+    }
+
+    @Override
     public ProductItemDTO save(ProductItemDTO dto) {
         String methodName = "save";
         logger.info(getMessageStart(BL_NO, methodName));
@@ -96,6 +116,7 @@ public class ProductItemServiceImpl
         } else if (Objects.nonNull(getRepository().findByColorAndSize(dto.getColor().getName(), dto.getSize()))) {
             throw new SystemErrorException("Save not success. Color and size is exist");
         }
+        dto.setRemovalFlag(false);
         ProductItem item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
         entity = getRepository().save(item);
         return getMapper().toDto(entity, getCycleAvoidingMappingContext());

@@ -31,4 +31,5 @@ public class SalesDTO extends AbstractDTO {
     private Date startDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
     private Date endDate;
+    private Boolean removalFlag;
 }

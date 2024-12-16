@@ -56,6 +56,7 @@ public class CategoryServiceImpl extends AbstractServiceImpl<CategoryRepository,
             logger.error("Save not success. DTO is null");
             throw new SystemErrorException("Save not success. DTO is null");
         }
+        dto.setRemovalFlag(false);
         Category category = getRepository().findByName(dto.getCategoryName()).orElse(null);
         if (Objects.isNull(category)) {
             if(!Objects.isNull(dto.getParentCategory())) {
@@ -129,7 +130,7 @@ public class CategoryServiceImpl extends AbstractServiceImpl<CategoryRepository,
         logger.info(getMessageStart(BL_NO, method));
         List<CategoryDTO> categoryDTOs;
         try {
-            List<Category> categories = categoryRepository.findAll();
+            List<Category> categories = categoryRepository.getAllCategoryList();
             categoryDTOs =
                     categories.stream().map(category -> getMapper().toDto(category, getCycleAvoidingMappingContext()))
                     .collect(Collectors.toList());
@@ -185,7 +186,7 @@ public class CategoryServiceImpl extends AbstractServiceImpl<CategoryRepository,
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         try {
-            categoryPage = categoryRepository.findAll(pageable);
+            categoryPage = categoryRepository.getAllCategory(pageable);
             List<CategoryDTO> categoryDTOS =
                     getMapper().toDtoList(categoryPage.getContent(), getCycleAvoidingMappingContext());
             logger.debug(getMessageOutputParam(BL_NO, "categoryDTOS", categoryDTOS));
@@ -231,12 +232,13 @@ public class CategoryServiceImpl extends AbstractServiceImpl<CategoryRepository,
     public void delete(String id) {
         logger.info(getMessageStart("AbstractService", "Delete DTO"));
         logger.debug(getMessageInputParam("AbstractService", "dto - id", id));
-        if (Objects.isNull(findById(id))) {
+        CategoryDTO categoryDTO = findById(id);
+        if (Objects.isNull(categoryDTO)) {
             throw new NotFoundException("DTO not found. Id: " + id);
         }
         try {
-            productService.deleteProductByCategoryId(id);
-            getRepository().deleteById(id);
+            categoryDTO.setRemovalFlag(true);
+            getRepository().save(getMapper().toEntity(categoryDTO, getCycleAvoidingMappingContext()));
             logger.info(getMessageEnd("AbstractService", "Delete DTO"));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

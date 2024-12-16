@@ -55,6 +55,7 @@ public class KLTNBEApplication {
                 mediaFile.setFileType(fileName.substring(fileName.lastIndexOf(".")));
                 mediaFile.setUrl(Constants.DEFAULT_AVATAR);
                 mediaFile.setProduct(null);
+                mediaFile.setRemovalFlag(false);
                 mediaFile = mediaFileService.save(mediaFile);
             }
 

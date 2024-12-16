@@ -12,6 +12,6 @@ import hcmute.nhom.kltn.repository.AbstractRepository;
  * @author: ThanhTrong
  **/
 public interface OrderItemRepository extends AbstractRepository<OrderItem, String> {
-    @Query("SELECT oi FROM OrderItem oi WHERE oi.order.id = :orderId")
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.order.id = :orderId AND oi.removalFlag = false")
     List<OrderItem> findByOrderId(@Param("orderId") String orderId);
 }

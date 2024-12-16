@@ -16,4 +16,5 @@ public interface ProductItemService extends AbstractService<ProductItemDTO, Prod
     List<ProductItemDTO> findByProductId(String productId);
 
     ProductItemDTO updateProductItem(String id, ProductItemDTO productItemDTO);
+    void deleteProductItem(String id);
 }

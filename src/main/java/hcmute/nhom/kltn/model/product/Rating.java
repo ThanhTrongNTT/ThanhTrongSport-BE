@@ -45,4 +45,6 @@ public class Rating extends AbstractAuditModel {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+    @Column(name = "removal_flag")
+    private Boolean removalFlag;
 }

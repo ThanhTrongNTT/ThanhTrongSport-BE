@@ -390,7 +390,7 @@ public class ProductController extends AbstractController {
             @PathVariable("id") String id
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "createProductItem"));
-        productItemService.delete(id);
+        productItemService.deleteProductItem(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "createProductItem"));
         return ResponseEntity.ok(
                 ApiResponse.<ProductItemDTO>builder()

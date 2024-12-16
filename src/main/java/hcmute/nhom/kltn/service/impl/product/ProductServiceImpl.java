@@ -96,7 +96,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
     @Override
     public Page<ProductDTO> getPaging(int page, int size, String sortBy, String sortDir) {
         Pageable pageRequest = Utilities.getPageRequest(page, size, sortBy, sortDir);
-        Page<Product> entities = getRepository().findAll(pageRequest);
+        Page<Product> entities = getRepository().getAllProduct(pageRequest);
         Page<ProductDTO> dtos = entities.map(item -> getMapper().toDto(item, getCycleAvoidingMappingContext()));
         entities.forEach(entity -> {
             List<ImageDTO> subImages = imageService.findByProductId(entity.getId());
@@ -223,7 +223,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         if (Objects.isNull(productDTO)) {
             throw new NotFoundException("Product not found");
         }
-        delete(productDTO);
+        deleteProduct(productDTO);
     }
 
     @Override
@@ -245,7 +245,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
             } else if (!genderName.isEmpty()) {
                 products = productRepository.searchProductByGender(genderName, pageRequest);
             } else if (categoryName.isEmpty() || genderName.isEmpty()) {
-               products = productRepository.findAll(pageRequest);
+               products = productRepository.getAllProduct(pageRequest);
            }
             productDTOS =
                     products.getContent().stream().map(category -> getMapper().toDto(category, getCycleAvoidingMappingContext()))
@@ -314,13 +314,10 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         logger.info(getMessageInputParam(BL_NO, "sortDir", sortDir));
         try {
             Pageable pageRequest = Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir);
-            List<Product> products = productRepository.findAll();
+            List<Product> products = productRepository.getAllProduct(pageRequest).getContent();
             List<ProductDTO> productDTOS = products.stream().map(product ->
                             getMapper().toDto(product, getCycleAvoidingMappingContext()))
                     .collect(Collectors.toList());
-            // Nhóm các sản phẩm theo tên và tạo danh sách ProductDTO
-            Map<String, List<ProductDTO>> groupedProducts = productDTOS.stream()
-                    .collect(Collectors.groupingBy(ProductDTO::getProductName));
 
             List<ProductDTO> finalProductDTOs = new ArrayList<>();
 
@@ -342,21 +339,19 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         }
     }
 
-    @Override
-    public void delete(ProductDTO dto) {
+    public void deleteProduct(ProductDTO dto) {
         String methodName = "deleteProduct";
         logger.info(getMessageStart(BL_NO, methodName));
         logger.info(getMessageInputParam(BL_NO, "dto", dto));
         try {
             List<ProductItemDTO> productItemDTOS = productItemService.findByProductId(dto.getId());
             if(!productItemDTOS.isEmpty()) {
-                productItemDTOS.forEach(productItemService::delete);
+                productItemDTOS.forEach(
+                        item -> productItemService.deleteProductItem(item.getId()
+                ));
             }
-            List<ImageDTO> subImages = imageService.findByProductId(dto.getId());
-            if(!subImages.isEmpty()) {
-                subImages.forEach(imageService::delete);
-            }
-            getRepository().delete(getMapper().toEntity(dto, getCycleAvoidingMappingContext()));
+            dto.setRemovalFlag(true);
+            getRepository().save(getMapper().toEntity(dto, getCycleAvoidingMappingContext()));
             logger.info(getMessageEnd(BL_NO, methodName));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -375,6 +370,7 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         }
         try {
             productItemDTO.setProduct(productDTO);
+            productItemDTO.setRemovalFlag(false);
             ProductItemDTO productItem = productItemService.save(productItemDTO);
             logger.debug(getMessageOutputParam(BL_NO, "productItem", productItem));
             logger.info(getMessageEnd(BL_NO, "saveProductItem"));
@@ -528,6 +524,22 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
             return productDTOS;
         } catch (Exception e) {
             logger.error("Get product by sale id failed!", e);
+            logger.info(getMessageEnd(BL_NO, methodName));
+            throw new SystemErrorException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Integer countProduct() {
+        String methodName = "countProduct";
+        logger.info(getMessageStart(BL_NO, methodName));
+        try {
+            Long count = getRepository().countProductByRemovalFlagFalse();
+            logger.debug(getMessageOutputParam(BL_NO, "count", count));
+            logger.info(getMessageEnd(BL_NO, methodName));
+            return Math.toIntExact(count);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
             logger.info(getMessageEnd(BL_NO, methodName));
             throw new SystemErrorException(e.getMessage());
         }

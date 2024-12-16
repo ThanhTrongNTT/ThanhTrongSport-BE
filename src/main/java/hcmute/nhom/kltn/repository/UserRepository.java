@@ -16,7 +16,7 @@ import hcmute.nhom.kltn.model.User;
  * @version:
  **/
 public interface UserRepository extends AbstractRepository<User, String> {
-    @Query(value = "SELECT * FROM t_user WHERE user_name = :userName", nativeQuery = true)
+    @Query(value = "SELECT * FROM t_user WHERE user_name = :userName AND removal_flag = 0", nativeQuery = true)
     User findByUsername(@Param("userName") String username);
 
     //@Query(value = "SELECT * FROM t_user WHERE email = :email", nativeQuery = true)
@@ -27,7 +27,7 @@ public interface UserRepository extends AbstractRepository<User, String> {
     @Query(value = "SELECT * FROM t_user WHERE email LIKE :keyword OR user_name LIKE :keyword", nativeQuery = true)
     List<User> searchUser(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT u FROM User as u WHERE u.email = :email AND u.providerId = :providerId")
+    @Query(value = "SELECT u FROM User as u WHERE u.email = :email AND u.providerId = :providerId AND u.removalFlag = false")
     Optional<User> findByEmailAndProviderId(@Param("email") String email, @Param("providerId") String providerId);
 
     @Modifying
@@ -44,4 +44,10 @@ public interface UserRepository extends AbstractRepository<User, String> {
     @Query(value = "DELETE FROM t_order_item oi"
             + " WHERE oi.order_id IN (SELECT o.id FROM t_orders o WHERE o.user_id = :userId)", nativeQuery = true)
     void deleteOrderItemByUserId(@Param("userId") String userId);
+
+    @Query(value = "SELECT COUNT(*) FROM t_orders o WHERE removal_flag = false", nativeQuery = true)
+    Integer countOrder();
+
+    @Query(value = "SELECT SUM(total) FROM t_orders o WHERE removal_flag = false", nativeQuery = true)
+    Double sumTotalPrice();
 }

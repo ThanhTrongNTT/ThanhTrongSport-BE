@@ -60,6 +60,7 @@ public class ImageServiceImpl
             File fileConverted = convertToFile(file);
             String fileName = file.getOriginalFilename();
             ImageDTO mediaFileDTO = new ImageDTO();
+            mediaFileDTO.setRemovalFlag(false);
             mediaFileDTO.setFileName(fileName);
             mediaFileDTO.setFileType(this.getExtension(fileName));
             String fileType = file.getContentType();
@@ -86,6 +87,7 @@ public class ImageServiceImpl
                 String fileType = file.getContentType();
                 File fileConverted = convertToFile(file);
                 ImageDTO mediaFileDTO = new ImageDTO();
+                mediaFileDTO.setRemovalFlag(false);
                 mediaFileDTO.setFileName(fileName);
                 mediaFileDTO.setFileType(this.getExtension(fileName));
                 mediaFileDTO.setUrl(firebaseStorageService.uploadFile(fileConverted, fileType));

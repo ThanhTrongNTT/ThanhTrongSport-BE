@@ -1,6 +1,7 @@
 package hcmute.nhom.kltn.service.impl.product;
 
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class ColorServiceImpl extends AbstractServiceImpl<ColorRepository, Color
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         try {
-            pageColor = getRepository().findAll(pageable);
+            pageColor = getRepository().getAllColor(pageable);
             List<ColorDTO> colorDTOS = getMapper().toDtoList(pageColor.getContent(), getCycleAvoidingMappingContext());
             logger.debug(getMessageOutputParam(BL_NO, "colorDTOS", colorDTOS));
             logger.info(getMessageEnd(BL_NO, methodName));
@@ -93,6 +94,43 @@ public class ColorServiceImpl extends AbstractServiceImpl<ColorRepository, Color
             logger.error(e.getMessage(), e);
             logger.info(getMessageEnd(BL_NO, methodName));
             throw new SystemErrorException("Update color not success. Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<ColorDTO> getAllColorList() {
+        String methodName = "getAllColorList";
+        logger.info(getMessageStart(BL_NO, methodName));
+        List<ColorDTO> colorDTOS;
+        try {
+            List<Color> colors = getRepository().getAllList();
+            colorDTOS = getMapper().toDtoList(colors, getCycleAvoidingMappingContext());
+            logger.info(getMessageEnd(BL_NO, methodName));
+            return colorDTOS;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            logger.info(getMessageEnd(BL_NO, methodName));
+            throw new SystemErrorException("Get all color list not success. Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteColor(String id) {
+        String methodName = "deleteColor";
+        logger.info(getMessageStart(BL_NO, methodName));
+        logger.debug(getMessageInputParam(BL_NO, "id", id));
+        ColorDTO colorCheck = findById(id);
+        if (Objects.isNull(colorCheck)) {
+            throw new NotFoundException("Color not found. Id: " + id);
+        }
+        try {
+            colorCheck.setRemovalFlag(true);
+            getRepository().save(getMapper().toEntity(colorCheck, getCycleAvoidingMappingContext()));
+            logger.info(getMessageEnd(BL_NO, methodName));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            logger.info(getMessageEnd(BL_NO, methodName));
+            throw new SystemErrorException("Delete color not success. Error: " + e.getMessage());
         }
     }
 }

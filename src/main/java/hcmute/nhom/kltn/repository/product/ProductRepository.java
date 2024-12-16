@@ -17,6 +17,11 @@ import hcmute.nhom.kltn.repository.AbstractRepository;
  **/
 public interface ProductRepository extends AbstractRepository<Product, String> {
 
+    @Query(value = "SELECT p FROM Product p WHERE p.removalFlag = false")
+    Page<Product> getAllProduct(Pageable pageable);
+
+    Long countProductByRemovalFlagFalse();
+
     @Query(value = "SELECT p FROM Product p "
             + "WHERE LOWER(p.productName) LIKE LOWER(CONCAT('%', :keyword, '%'))"
             + " AND LOWER(p.freeInformation) LIKE LOWER(CONCAT('%', :keyword, '%'))"
@@ -34,7 +39,7 @@ public interface ProductRepository extends AbstractRepository<Product, String> {
     Page<Product> searchProductByCategory(@Param("categoryName") String categoryName, Pageable pageable);
 
     @Query(value = "SELECT p FROM Product p "
-            + "WHERE LOWER(p.gender.categoryName) LIKE :genderName")
+            + "WHERE LOWER(p.gender.categoryName) LIKE :genderName AND p.removalFlag = false")
     Page<Product> searchProductByGender(@Param("genderName") String genderName, Pageable pageable);
 
     @Query(value = "SELECT p FROM Product p WHERE p.basePrice >= :minPrice AND p.basePrice <= :maxPrice AND p.removalFlag = false ")
@@ -45,13 +50,15 @@ public interface ProductRepository extends AbstractRepository<Product, String> {
             + " AND LOWER(p.category.categoryName) LIKE LOWER(CONCAT('%', :category, '%'))")
     List<Product> searchByCategory(@Param("category") String category, @Param("gender") String gender);
 
-    Product findBySlug(String slug);
+    @Query(value = "SELECT p FROM Product p WHERE p.removalFlag = false AND p.slug = :slug")
+    Product findBySlug(@Param("slug") String slug);
 
-    Product findByProductName(String productName);
+    @Query(value = "SELECT p FROM Product p WHERE p.productName = :productName AND p.removalFlag = false")
+    Product findByProductName(@Param("productName") String productName);
 
-    @Query(value = "SELECT p FROM Product p WHERE p.category.id = :categoryId")
+    @Query(value = "SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.removalFlag = false")
     List<Product> findByCategoryId(@Param("categoryId") String categoryId);
 
-    @Query(value = "SELECT p FROM Product p WHERE p.sales.id = :saleId")
+    @Query(value = "SELECT p FROM Product p WHERE p.sales.id = :saleId AND p.removalFlag = false")
     List<Product> findBySaleId(String saleId);
 }

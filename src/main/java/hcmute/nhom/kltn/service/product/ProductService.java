@@ -42,4 +42,6 @@ public interface ProductService extends AbstractService<ProductDTO, Product> {
 
     List<ProductDTO> getProductBySaleId(String saleId);
 
+    Integer countProduct();
+
 }

@@ -1,17 +1,14 @@
 package hcmute.nhom.kltn.model.order;
 
-import java.util.List;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -71,9 +68,12 @@ public class Order extends AbstractAuditModel {
     private String status;
     @Column(name = "payment_method")
     private String paymentMethod;
-    @OneToOne
-    @JoinColumn(name = "coupon_id")
+    @ManyToOne
+    @JoinColumn(name = "coupon_id", referencedColumnName = "id")
     private Coupon coupon;
     @Column(name = "is_paid")
     private Boolean isPaid;
+
+    @Column(name = "removal_flag")
+    private Boolean removalFlag;
 }

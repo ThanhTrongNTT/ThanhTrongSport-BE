@@ -24,5 +24,5 @@ public class OrderItemDTO extends AbstractDTO {
     @JsonIgnore
     private OrderDTO order;
     private Double subTotal;
-
+    private Boolean removalFlag;
 }

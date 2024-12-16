@@ -3,6 +3,7 @@ package hcmute.nhom.kltn.service;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import hcmute.nhom.kltn.common.payload.ChangePasswordRequest;
+import hcmute.nhom.kltn.dto.AdminInformationDTO;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.model.User;
@@ -102,4 +103,6 @@ public interface UserService extends AbstractService<UserDTO, User> {
     UserDTO findUserByEmailAndProviderId(String email, String providerId);
 
     void deleteUser(String id);
+
+    AdminInformationDTO getAdminInformation();
 }

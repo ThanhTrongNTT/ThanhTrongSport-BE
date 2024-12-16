@@ -46,4 +46,6 @@ public class Sales extends AbstractAuditModel {
     private Date startDate;
     @Column(name = "end_date")
     private Date endDate;
+    @Column(name = "removal_flag")
+    private Boolean removalFlag;
 }

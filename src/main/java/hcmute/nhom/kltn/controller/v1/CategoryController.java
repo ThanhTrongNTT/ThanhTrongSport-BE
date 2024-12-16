@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hcmute.nhom.kltn.common.payload.ApiResponse;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.product.CategoryDTO;
+import hcmute.nhom.kltn.exception.NotFoundException;
 import hcmute.nhom.kltn.service.product.CategoryService;
 import hcmute.nhom.kltn.util.Constants;
 
@@ -142,6 +143,9 @@ public class CategoryController extends AbstractController {
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "searchCategory"));
         CategoryDTO categoryDTO = categoryService.findById(id);
+        if(Boolean.TRUE.equals(categoryDTO.getRemovalFlag())) {
+            throw new NotFoundException("Category not found");
+        }
         logger.info(getMessageEnd(request.getRequestURL().toString(), "searchCategory"));
         return ResponseEntity.ok(
                 ApiResponse.<CategoryDTO>builder()
@@ -158,6 +162,7 @@ public class CategoryController extends AbstractController {
             @RequestBody CategoryDTO categoryDTO
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "createCategory"));
+        categoryDTO.setRemovalFlag(false);
         CategoryDTO category = categoryService.save(categoryDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "createCategory"));
         return ResponseEntity.ok(

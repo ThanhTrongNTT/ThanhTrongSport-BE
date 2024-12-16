@@ -31,5 +31,5 @@ public class OrderDTO extends AbstractDTO {
     private Address address;
     private Boolean isPaid;
     private List<OrderItemDTO> items;
-
+    private Boolean removalFlag;
 }

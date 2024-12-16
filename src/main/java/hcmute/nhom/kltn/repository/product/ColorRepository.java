@@ -1,6 +1,9 @@
 package hcmute.nhom.kltn.repository.product;
 
-import hcmute.nhom.kltn.dto.product.ColorDTO;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import hcmute.nhom.kltn.model.product.Color;
 import hcmute.nhom.kltn.repository.AbstractRepository;
 
@@ -10,4 +13,10 @@ import hcmute.nhom.kltn.repository.AbstractRepository;
  * @author: ThanhTrong
  **/
 public interface ColorRepository extends AbstractRepository<Color, String> {
+
+    @Query("SELECT c FROM Color c WHERE c.removalFlag = false")
+    Page<Color> getAllColor(Pageable pageable);
+
+    @Query("SELECT c FROM Color c WHERE c.removalFlag = false")
+    List<Color> getAllList();
 }

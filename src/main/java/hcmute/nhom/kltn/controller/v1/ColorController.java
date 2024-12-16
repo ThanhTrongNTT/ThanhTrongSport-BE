@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hcmute.nhom.kltn.common.payload.ApiResponse;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.product.ColorDTO;
+import hcmute.nhom.kltn.exception.NotFoundException;
 import hcmute.nhom.kltn.service.product.ColorService;
 import hcmute.nhom.kltn.util.Constants;
 
@@ -62,7 +63,7 @@ public class ColorController extends AbstractController {
             HttpServletRequest request
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getAllColors"));
-        List<ColorDTO> colorDTOS = colorService.findAll();
+        List<ColorDTO> colorDTOS = colorService.getAllColorList();
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllColors"));
         return ResponseEntity.ok(
                 ApiResponse.<List<ColorDTO>>builder()
@@ -80,6 +81,9 @@ public class ColorController extends AbstractController {
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getColorById"));
         ColorDTO colorDTO = colorService.findById(id);
+        if(Boolean.TRUE.equals(colorDTO.getRemovalFlag())) {
+            throw new NotFoundException("Color not found. Id: " + id);
+        }
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getColorById"));
         return ResponseEntity.ok(
                 ApiResponse.<ColorDTO>builder()
@@ -96,6 +100,7 @@ public class ColorController extends AbstractController {
             @RequestBody ColorDTO colorDTO
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "saveColor"));
+        colorDTO.setRemovalFlag(false);
         ColorDTO color = colorService.save(colorDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "saveColor"));
         return ResponseEntity.ok(
@@ -131,7 +136,7 @@ public class ColorController extends AbstractController {
             @PathVariable("id") String id
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "deleteColor"));
-        colorService.delete(id);
+        colorService.deleteColor(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "deleteColor"));
         return ResponseEntity.ok(
                 ApiResponse.<ColorDTO>builder()

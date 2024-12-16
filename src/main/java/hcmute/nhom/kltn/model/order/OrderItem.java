@@ -44,4 +44,6 @@ public class OrderItem extends AbstractAuditModel {
     private Order order;
     @Column(name = "sub_total")
     private Double subTotal;
+    @Column(name = "removal_flag")
+    private Boolean removalFlag;
 }

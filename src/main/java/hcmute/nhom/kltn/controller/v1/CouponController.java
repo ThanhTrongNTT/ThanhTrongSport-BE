@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hcmute.nhom.kltn.common.payload.ApiResponse;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.order.CouponDTO;
+import hcmute.nhom.kltn.exception.NotFoundException;
 import hcmute.nhom.kltn.service.order.CouponService;
 import hcmute.nhom.kltn.util.Constants;
 
@@ -80,6 +81,9 @@ public class CouponController extends AbstractController {
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getCouponById"));
         CouponDTO couponDTO = couponService.findById(id);
+        if (Boolean.TRUE.equals(couponDTO.getRemovalFlag())) {
+           throw new NotFoundException("Coupon not found. Id: " + id);
+        }
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getCouponById"));
         return ResponseEntity.ok(
                 ApiResponse.<CouponDTO>builder()
@@ -96,6 +100,7 @@ public class CouponController extends AbstractController {
             @RequestBody CouponDTO couponDTO
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "createCoupon"));
+        couponDTO.setRemovalFlag(false);
         CouponDTO coupon = couponService.save(couponDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "createCoupon"));
         return ResponseEntity.ok(

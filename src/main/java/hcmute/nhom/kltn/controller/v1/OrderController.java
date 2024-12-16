@@ -18,6 +18,7 @@ import hcmute.nhom.kltn.common.payload.ApiResponse;
 import hcmute.nhom.kltn.common.payload.CreateOrderRequest;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.order.OrderDTO;
+import hcmute.nhom.kltn.exception.NotFoundException;
 import hcmute.nhom.kltn.service.order.OrderService;
 import hcmute.nhom.kltn.util.Constants;
 
@@ -68,6 +69,9 @@ public class OrderController extends AbstractController {
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "searchOrder"));
         OrderDTO orderDTO = orderService.findById(id);
+        if (Boolean.TRUE.equals(orderDTO.getRemovalFlag())) {
+            throw new NotFoundException("Order not found");
+        }
         logger.info(getMessageEnd(request.getRequestURL().toString(), "searchOrder"));
         return ResponseEntity.ok(
                 ApiResponse.<OrderDTO>builder()
@@ -127,7 +131,7 @@ public class OrderController extends AbstractController {
             @PathVariable("id") String id
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "deleteOrder"));
-        orderService.delete(id);
+        orderService.deleteOrder(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "deleteOrder"));
         return ResponseEntity.ok(
                 ApiResponse.<Boolean>builder()

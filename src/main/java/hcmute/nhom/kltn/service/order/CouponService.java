@@ -15,4 +15,5 @@ public interface CouponService extends AbstractService<CouponDTO, Coupon> {
     PaginationDTO<CouponDTO> getAllCouponPagination(int pageNo, int pageSize, String sortBy, String sortDir);
     List<CouponDTO> getAllCoupon();
     CouponDTO updateCoupon(String id, CouponDTO couponDTO);
+    void deleteCoupon(String id);
 }

@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import hcmute.nhom.kltn.common.payload.ChangePasswordRequest;
+import hcmute.nhom.kltn.dto.AdminInformationDTO;
 import hcmute.nhom.kltn.dto.ImageDTO;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.RoleDTO;
@@ -31,6 +32,8 @@ import hcmute.nhom.kltn.service.ImageService;
 import hcmute.nhom.kltn.service.RoleService;
 import hcmute.nhom.kltn.service.UserProfileService;
 import hcmute.nhom.kltn.service.UserService;
+import hcmute.nhom.kltn.service.order.OrderService;
+import hcmute.nhom.kltn.service.product.ProductService;
 import hcmute.nhom.kltn.util.Utilities;
 
 /**
@@ -61,6 +64,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
+    private final ProductService productService;
 
     @Override
     public UserDTO findByUsername(String username) {
@@ -478,17 +482,33 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
             throw new NotFoundException("User not found. Id: " + id);
         }
         try {
-            getRepository().deleteRoleUserByUserId(id);
-            getRepository().deleteOrderItemByUserId(id);
-            getRepository().deleteOrderUserByUserId(id);
-            //imageService.delete(userDTO.getUserProfile().getAvatar());
-            userProfileService.delete(userDTO.getUserProfile());
-            getRepository().deleteById(id);
+            userDTO.setRemovalFlag(true);
+            getRepository().save(getMapper().toEntity(userDTO, getCycleAvoidingMappingContext()));
             logger.info(getMessageEnd("UserService", "Delete DTO"));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             logger.info(getMessageEnd("UserService", "Delete DTO"));
             throw new SystemErrorException("Delete not success. Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public AdminInformationDTO getAdminInformation() {
+        String methodName = "getAdminInformation";
+        logger.info(getMessageStart(SERVICE, methodName));
+        try {
+            AdminInformationDTO adminInformationDTO = AdminInformationDTO.builder()
+                    .totalClient((int) getRepository().count())
+                    .totalMoney(getRepository().sumTotalPrice())
+                    .totalOrders(getRepository().countOrder())
+                    .totalProduct(productService.countProduct()).build();
+            logger.debug(getMessageOutputParam(SERVICE, "adminInformationDTO", adminInformationDTO));
+            logger.info(getMessageEnd(SERVICE, methodName));
+            return adminInformationDTO;
+        } catch (Exception e) {
+            logger.error("Error when get admin information", e);
+            logger.info(getMessageEnd(SERVICE, methodName));
+            throw new SystemErrorException("Error when get admin information");
         }
     }
 

@@ -38,6 +38,8 @@ public class Color extends AbstractAuditModel {
     private String displayCode;
     @Column(name = "name", nullable = false)
     private String name;
+    @Column(name = "removal_flag")
+    private Boolean removalFlag;
 
     @Override
     public String toString() {

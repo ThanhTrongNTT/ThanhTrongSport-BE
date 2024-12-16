@@ -102,11 +102,13 @@ public class OrderServiceImpl extends AbstractServiceImpl<OrderRepository, Order
                 throw new SystemErrorException("Người dùng không tồn tại!");
             }
             orderDTO.setUser(userDTO);
+            orderDTO.setRemovalFlag(false);
             OrderDTO finalOrderDTO = save(orderDTO);
             orderItemDTOList.forEach(orderItemDTO -> {
                 if(!checkStock(orderItemDTO, orderItemDTO.getProduct())) {
                     throw new SystemErrorException("Số lượng sản phẩm không đủ!");
                 }
+                orderItemDTO.setRemovalFlag(false);
                 orderItemDTO.setOrder(finalOrderDTO);
                 orderItemDTO.getProduct().setStock(orderItemDTO.getProduct().getStock() - orderItemDTO.getQuantity());
                 productItemService.updateProductItem(orderItemDTO.getProduct().getId(), orderItemDTO.getProduct());
@@ -139,7 +141,7 @@ public class OrderServiceImpl extends AbstractServiceImpl<OrderRepository, Order
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         try {
-            orderPage = orderRepository.findAll(pageable);
+            orderPage = orderRepository.getAllOrder(pageable);
             List<OrderDTO> orderDTOS =
                     getMapper().toDtoList(orderPage.getContent(), getCycleAvoidingMappingContext());
             logger.debug(getMessageOutputParam(BL_NO, "orderDTOS", orderDTOS));
@@ -156,6 +158,58 @@ public class OrderServiceImpl extends AbstractServiceImpl<OrderRepository, Order
             logger.error(e.getMessage());
             logger.info(getMessageEnd(BL_NO, method));
             throw new SystemErrorException("Get all category pagination failed");
+        }
+    }
+
+    @Override
+    public void deleteOrder(String orderId) {
+        String method = "deleteOrder";
+        logger.info(getMessageStart(BL_NO, method));
+        logger.debug(getMessageInputParam(BL_NO, "orderId", orderId));
+        try {
+            OrderDTO orderDTO = findById(orderId);
+            if (Objects.isNull(orderDTO)) {
+                throw new SystemErrorException("Order không tồn tại!");
+            }
+            orderDTO.setRemovalFlag(true);
+            getRepository().save(getMapper().toEntity(orderDTO, getCycleAvoidingMappingContext()));
+            logger.info(getMessageEnd(BL_NO, method));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.info(getMessageEnd(BL_NO, method));
+            throw new SystemErrorException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Integer countOrder() {
+        String method = "countOrder";
+        logger.info(getMessageStart(BL_NO, method));
+        try {
+            Long count = getRepository().countOrder();
+            logger.debug(getMessageOutputParam(BL_NO, "count", count));
+            logger.info(getMessageEnd(BL_NO, method));
+            return Math.toIntExact(count);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.info(getMessageEnd(BL_NO, method));
+            throw new SystemErrorException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Double sumTotalPrice() {
+        String method = "sumTotalPrice";
+        logger.info(getMessageStart(BL_NO, method));
+        try {
+            Double sum = getRepository().sumTotalPrice();
+            logger.debug(getMessageOutputParam(BL_NO, "sum", sum));
+            logger.info(getMessageEnd(BL_NO, method));
+            return sum;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.info(getMessageEnd(BL_NO, method));
+            throw new SystemErrorException(e.getMessage());
         }
     }
 

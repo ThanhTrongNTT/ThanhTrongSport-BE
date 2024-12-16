@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import hcmute.nhom.kltn.common.payload.ApiResponse;
 import hcmute.nhom.kltn.common.payload.ChangePasswordRequest;
+import hcmute.nhom.kltn.dto.AdminInformationDTO;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.exception.SystemErrorException;
@@ -215,6 +216,20 @@ public class UserController extends AbstractController {
                         .code(HttpStatus.OK.toString())
                         .data(result)
                         .message("Hủy kích hoạt thành công!")
+                        .build());
+    }
+
+    @GetMapping("/user/information")
+    public ResponseEntity<ApiResponse<AdminInformationDTO>> getInformationAdminPage(HttpServletRequest request) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "getInformationAdminPage"));
+        AdminInformationDTO adminInformationDTO = userService.getAdminInformation();
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "getInformationAdminPage"));
+        return ResponseEntity.ok(
+                ApiResponse.<AdminInformationDTO>builder()
+                        .result(true)
+                        .code(HttpStatus.OK.toString())
+                        .data(adminInformationDTO)
+                        .message("Get information admin page successfully!")
                         .build());
     }
 }

@@ -21,4 +21,10 @@ public interface OrderService extends AbstractService<OrderDTO, Order> {
     OrderDTO createOrder (OrderDTO orderDTO, List<OrderItemDTO> orderItemDTOList);
 
     PaginationDTO<OrderDTO> getAllOrderPagination(int pageNo, int pageSize, String sortBy, String sortDir);
+
+    void deleteOrder(String orderId);
+
+    Integer countOrder();
+
+    Double sumTotalPrice();
 }

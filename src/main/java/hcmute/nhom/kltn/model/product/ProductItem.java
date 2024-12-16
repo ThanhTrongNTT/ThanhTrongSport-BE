@@ -58,4 +58,6 @@ public class ProductItem extends AbstractAuditModel {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+    @Column(name = "removal_flag")
+    private Boolean removalFlag;
 }

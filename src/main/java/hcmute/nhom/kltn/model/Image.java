@@ -43,4 +43,6 @@ public class Image extends AbstractAuditModel {
     @ManyToOne(cascade = CascadeType.ALL, fetch = javax.persistence.FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+    @Column(name = "removal_flag")
+    private Boolean removalFlag;
 }

@@ -13,4 +13,5 @@ import hcmute.nhom.kltn.service.AbstractService;
 public interface SaleService extends AbstractService<SalesDTO, Sales> {
     PaginationDTO<SalesDTO> getAllSalePagination(int pageNo, int pageSize, String sortBy, String sortDir);
     SalesDTO updateSale(String id, SalesDTO salesDTO);
+    void deleteSale(String saleId);
 }

@@ -100,6 +100,7 @@ public class SaleController extends AbstractController {
             @Valid @RequestBody SalesDTO saleDTO
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "createSale"));
+        saleDTO.setRemovalFlag(false);
         SalesDTO sale = saleService.save(saleDTO);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "createSale"));
         return ResponseEntity.ok(
@@ -135,7 +136,7 @@ public class SaleController extends AbstractController {
             @PathVariable("id") String id
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "deleteSale"));
-        saleService.delete(id);
+        saleService.deleteSale(id);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "deleteSale"));
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
