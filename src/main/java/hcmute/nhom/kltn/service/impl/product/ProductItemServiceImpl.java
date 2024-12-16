@@ -113,8 +113,8 @@ public class ProductItemServiceImpl
         logger.debug(getMessageInputParam(BL_NO, "dto", dto));
         if (Objects.isNull(dto)) {
             throw new SystemErrorException("Save not success. DTO is null");
-        } else if (Objects.nonNull(getRepository().findByColorAndSize(dto.getColor().getName(), dto.getSize()))) {
-            throw new SystemErrorException("Save not success. Color and size is exist");
+        } else if (Objects.nonNull(getRepository().findByColorAndSizeAndProductId(dto.getProduct().getId(), dto.getColor().getName(), dto.getSize()))) {
+            throw new SystemErrorException("Save not success");
         }
         dto.setRemovalFlag(false);
         ProductItem item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());

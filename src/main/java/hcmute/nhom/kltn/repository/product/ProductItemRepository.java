@@ -17,6 +17,6 @@ public interface ProductItemRepository extends AbstractRepository<ProductItem, S
     @Query(value = "SELECT pi FROM ProductItem pi WHERE pi.product.id = :productId AND pi.removalFlag = false")
     List<ProductItem> findByProductId(@Param("productId") String productId);
 
-    @Query(value = "SELECT pi FROM ProductItem pi WHERE pi.color.name = :colorName AND pi.size = :size AND pi.removalFlag = false")
-    ProductItem findByColorAndSize(@Param("colorName") String colorName, @Param("size") String size);
+    @Query(value = "SELECT pi FROM ProductItem pi WHERE pi.product.id = :productId AND pi.color.name = :colorName AND pi.size = :size AND pi.removalFlag = false")
+    ProductItem findByColorAndSizeAndProductId(@Param("productId")String productId, @Param("colorName") String colorName, @Param("size") String size);
 }
