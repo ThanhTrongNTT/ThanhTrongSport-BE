@@ -30,6 +30,7 @@ public class OrderDTO extends AbstractDTO {
     private String paymentMethod;
     private Address address;
     private Boolean isPaid;
+    private CouponDTO coupon;
     private List<OrderItemDTO> items;
     private Boolean removalFlag;
 }
