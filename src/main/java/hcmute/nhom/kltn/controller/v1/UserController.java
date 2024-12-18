@@ -52,20 +52,13 @@ public class UserController extends AbstractController {
             String sortDir
     ) {
         logger.info(getMessageStart(request.getRequestURL().toString(), "getAllUser"));
-        Page<UserDTO> userDTOPage = userService.getPaging(pageNo, pageSize, sortBy, sortDir);
-        PaginationDTO<UserDTO> userDTOPagination = PaginationDTO.<UserDTO>builder()
-                .items(userDTOPage.getContent())
-                .totalPages(userDTOPage.getTotalPages())
-                .totalItems(userDTOPage.getTotalElements())
-                .itemCount(userDTOPage.getNumberOfElements())
-                .currentPage(userDTOPage.getNumber())
-                .build();
+        PaginationDTO<UserDTO> userDTOPage = userService.getAllUserPagination(pageNo, pageSize, sortBy, sortDir);
         logger.info(getMessageEnd(request.getRequestURL().toString(), "getAllUser"));
         return ResponseEntity.ok(
                 ApiResponse.<PaginationDTO<UserDTO>>builder()
                         .result(true)
                         .code(HttpStatus.OK.toString())
-                        .data(userDTOPagination)
+                        .data(userDTOPage)
                         .message("Get all user successfully!")
                         .build());
     }

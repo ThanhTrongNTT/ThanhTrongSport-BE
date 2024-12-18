@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +22,14 @@ import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.RoleDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
 import hcmute.nhom.kltn.dto.UserProfileDTO;
+import hcmute.nhom.kltn.dto.product.CategoryDTO;
 import hcmute.nhom.kltn.email.EmailSender;
 import hcmute.nhom.kltn.enums.RoleName;
 import hcmute.nhom.kltn.exception.NotFoundException;
 import hcmute.nhom.kltn.exception.SystemErrorException;
 import hcmute.nhom.kltn.mapper.UserMapper;
 import hcmute.nhom.kltn.model.User;
+import hcmute.nhom.kltn.model.product.Category;
 import hcmute.nhom.kltn.repository.UserRepository;
 import hcmute.nhom.kltn.service.ClientService;
 import hcmute.nhom.kltn.service.ImageService;
@@ -96,9 +100,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
         logger.info(getMessageStart(SERVICE, methodName));
         logger.debug(getMessageInputParam(SERVICE, "userDTO", userDTO));
         try {
-            User user = getRepository().findByEmail(userDTO.getEmail());
+            User user = getRepository().findByEmailRegister(userDTO.getEmail());
             if (Objects.nonNull(user)) {
-                if (user.getRemovalFlag()) {
+                if (Boolean.TRUE.equals(user.getRemovalFlag())) {
                     user.setRemovalFlag(false);
                     user.setActiveFlag(false);
                     user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
@@ -523,6 +527,36 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
             logger.error("Error when get admin information", e);
             logger.info(getMessageEnd(SERVICE, methodName));
             throw new SystemErrorException("Error when get admin information");
+        }
+    }
+
+    @Override
+    public PaginationDTO<UserDTO> getAllUserPagination(int pageNo, int pageSize, String sortBy, String sortDir) {
+        String methodName = "getAllUserPagination";
+        logger.info(getMessageStart(SERVICE, methodName));
+        logger.debug(getMessageInputParam(SERVICE, "pageNo", pageNo));
+        logger.debug(getMessageInputParam(SERVICE, "pageSize", pageSize));
+        logger.debug(getMessageInputParam(SERVICE, "sortBy", sortBy));
+        logger.debug(getMessageInputParam(SERVICE, "sortDir", sortDir));
+        Page<User> userPage;
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        try {
+            userPage = getRepository().getAllCategory(pageable);
+            List<UserDTO> userDTOS =
+                    getMapper().toDtoList(userPage.getContent(), getCycleAvoidingMappingContext());
+            logger.debug(getMessageOutputParam("UserService", "userDTOS", userDTOS));
+            return PaginationDTO.<UserDTO>builder()
+                    .items(userDTOS)
+                    .currentPage(pageNo)
+                    .pageSize(pageSize)
+                    .totalItems(userPage.getTotalElements())
+                    .itemCount(userPage.getNumberOfElements())
+                    .totalPages(userPage.getTotalPages())
+                    .build();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new SystemErrorException("Get all user pagination failed");
         }
     }
 

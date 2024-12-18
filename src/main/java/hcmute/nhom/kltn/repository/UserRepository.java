@@ -2,6 +2,8 @@ package hcmute.nhom.kltn.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +18,9 @@ import hcmute.nhom.kltn.model.User;
  * @version:
  **/
 public interface UserRepository extends AbstractRepository<User, String> {
+
+    @Query(value = "SELECT u FROM User u WHERE u.removalFlag = false")
+    Page<User> getAllCategory(Pageable pageable);
     @Query(value = "SELECT * FROM t_user WHERE user_name = :userName AND removal_flag = 0", nativeQuery = true)
     User findByUsername(@Param("userName") String username);
 
@@ -23,6 +28,10 @@ public interface UserRepository extends AbstractRepository<User, String> {
     @EntityGraph(value = "User.detail", type = EntityGraph.EntityGraphType.FETCH)
     @Query("SELECT u FROM User u WHERE u.email = :email AND u.removalFlag = false")
     User findByEmail(@Param("email") String email);
+
+    @EntityGraph(value = "User.detail", type = EntityGraph.EntityGraphType.FETCH)
+    @Query("SELECT u FROM User u WHERE u.email = :email")
+    User findByEmailRegister(@Param("email") String email);
 
     @Query(value = "SELECT * FROM t_user WHERE email LIKE :keyword OR user_name LIKE :keyword", nativeQuery = true)
     List<User> searchUser(@Param("keyword") String keyword);

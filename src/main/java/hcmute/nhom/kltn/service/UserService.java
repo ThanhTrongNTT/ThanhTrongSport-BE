@@ -105,4 +105,6 @@ public interface UserService extends AbstractService<UserDTO, User> {
     void deleteUser(String id);
 
     AdminInformationDTO getAdminInformation();
+
+    PaginationDTO<UserDTO> getAllUserPagination(int pageNo, int pageSize, String sortBy, String sortDir);
 }

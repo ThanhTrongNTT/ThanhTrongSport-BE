@@ -1,5 +1,6 @@
 package hcmute.nhom.kltn.controller.v1;
 
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,9 @@ import hcmute.nhom.kltn.common.payload.ApiResponse;
 import hcmute.nhom.kltn.common.payload.CreateOrderRequest;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.order.OrderDTO;
+import hcmute.nhom.kltn.dto.order.OrderItemDTO;
 import hcmute.nhom.kltn.exception.NotFoundException;
+import hcmute.nhom.kltn.service.order.OrderItemService;
 import hcmute.nhom.kltn.service.order.OrderService;
 import hcmute.nhom.kltn.util.Constants;
 
@@ -33,9 +36,11 @@ import hcmute.nhom.kltn.util.Constants;
 public class OrderController extends AbstractController {
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
     private final OrderService orderService;
+    private final OrderItemService orderItemService;
 
-    public OrderController(final OrderService orderService) {
+    public OrderController(final OrderService orderService, OrderItemService orderItemService) {
         this.orderService = orderService;
+        this.orderItemService = orderItemService;
     }
 
     @GetMapping("/orders")
@@ -181,6 +186,23 @@ public class OrderController extends AbstractController {
                         .result(true)
                         .data(orderDTO)
                         .message("Update status successfully!")
+                        .code(HttpStatus.OK.toString())
+                        .build());
+    }
+
+    @GetMapping("/orders/items/{id}")
+    public ResponseEntity<ApiResponse<List<OrderItemDTO>>> getOrderItemsById(
+            HttpServletRequest request,
+            @PathVariable("id") String id
+    ) {
+        logger.info(getMessageStart(request.getRequestURL().toString(), "getOrderItems"));
+        List<OrderItemDTO> orderItemDTOList = orderItemService.getOrderItemByOrderId(id);
+        logger.info(getMessageEnd(request.getRequestURL().toString(), "getOrderItems"));
+        return ResponseEntity.ok(
+                ApiResponse.<List<OrderItemDTO>>builder()
+                        .result(true)
+                        .data(orderItemDTOList)
+                        .message("Get order items successfully!")
                         .code(HttpStatus.OK.toString())
                         .build());
     }
