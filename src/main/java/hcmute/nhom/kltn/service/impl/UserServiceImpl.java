@@ -98,9 +98,23 @@ public class UserServiceImpl extends AbstractServiceImpl<UserRepository, UserMap
         try {
             User user = getRepository().findByEmail(userDTO.getEmail());
             if (Objects.nonNull(user)) {
-                logger.error("User already exists");
-                logger.info(getMessageEnd(SERVICE, methodName));
-                throw new SystemErrorException("User already exists");
+                if (user.getRemovalFlag()) {
+                    user.setRemovalFlag(false);
+                    user.setActiveFlag(false);
+                    user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+                    user.setModifiedBy(userDTO.getEmail());
+                    getRepository().save(user);
+                    // Execute send email
+                    clientService.activeUser(userDTO.getEmail());
+                    logger.info(getMessageOutputParam(SERVICE, "result", true));
+                    logger.info(getMessageEnd(SERVICE, methodName));
+                    return true;
+                } else {
+                    logger.error("Người dùng đã tồn tại!");
+                    logger.info(getMessageEnd(SERVICE, methodName));
+                    throw new SystemErrorException("Người dùng đã tồn tại!");
+                }
+
             }
             UserProfileDTO userProfileDTO = new UserProfileDTO();
             userProfileDTO.setName(userDTO.getUserProfile().getName());

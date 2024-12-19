@@ -64,7 +64,15 @@ public class ProductServiceImpl extends AbstractServiceImpl<ProductRepository, P
         ProductDTO productDTO = findProductByName(dto.getProductName());
         ProductDTO productDTO1 = getProductBySlug(dto.getSlug());
         if (Objects.nonNull(productDTO) || Objects.nonNull(productDTO1)) {
-            throw new SystemErrorException("Product name is existed");
+            if (Boolean.TRUE.equals(productDTO.getRemovalFlag())) {
+                productDTO.setRemovalFlag(false);
+                return updateProduct(productDTO.getId(), productDTO);
+            } else if (Boolean.TRUE.equals(productDTO1.getRemovalFlag())) {
+                productDTO1.setRemovalFlag(false);
+                return updateProduct(productDTO1.getId(), productDTO1);
+            } else {
+                throw new SystemErrorException("Product name is existed");
+            }
         }
         if(Objects.nonNull(dto.getSales())) {
             dto.setPromoPrice(

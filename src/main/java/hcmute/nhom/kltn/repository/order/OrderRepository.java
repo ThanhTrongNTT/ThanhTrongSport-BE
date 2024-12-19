@@ -16,7 +16,7 @@ import hcmute.nhom.kltn.repository.AbstractRepository;
 public interface OrderRepository extends AbstractRepository<Order, String> {
 
     @Query(value = "SELECT o FROM Order o WHERE o.user.email = :email and o.removalFlag = false")
-    List<Order> getOrderByUser(@Param("email") String email);
+    Page<Order> getOrderByUser(@Param("email") String email, Pageable pageable);
 
     @Query(value = "SELECT o FROM Order o WHERE o.removalFlag = false")
     Page<Order> getAllOrder(Pageable pageable);

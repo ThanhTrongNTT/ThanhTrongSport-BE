@@ -1,5 +1,9 @@
 package hcmute.nhom.kltn.service.impl.order;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -14,13 +18,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import hcmute.nhom.kltn.dto.PaginationDTO;
 import hcmute.nhom.kltn.dto.UserDTO;
+import hcmute.nhom.kltn.dto.order.CouponDTO;
 import hcmute.nhom.kltn.dto.order.OrderDTO;
 import hcmute.nhom.kltn.dto.order.OrderItemDTO;
-import hcmute.nhom.kltn.dto.product.ProductDTO;
 import hcmute.nhom.kltn.dto.product.ProductItemDTO;
 import hcmute.nhom.kltn.exception.SystemErrorException;
 import hcmute.nhom.kltn.mapper.order.OrderMapper;
 import hcmute.nhom.kltn.model.order.Order;
+import hcmute.nhom.kltn.model.product.Category;
 import hcmute.nhom.kltn.repository.order.OrderRepository;
 import hcmute.nhom.kltn.service.UserService;
 import hcmute.nhom.kltn.service.impl.AbstractServiceImpl;
@@ -64,23 +69,20 @@ public class OrderServiceImpl extends AbstractServiceImpl<OrderRepository, Order
         logger.info(getMessageStart(BL_NO, "getOrderByUser"));
         logger.debug(getMessageInputParam(BL_NO, "email", email));
         checkInputParamGetOrderByUser(email);
+        Page<Order> orderPage;
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         try {
-            List<Order> orders = getRepository().getOrderByUser(email);
-            List<OrderDTO> orderDTOList = orders.stream().map(order -> getMapper().toDto(order, getCycleAvoidingMappingContext()))
-                    .collect(Collectors.toList());
-            orderDTOList.forEach(orderDTO -> {
-                orderDTO.setItems(orderItemService.getOrderItemByOrderId(orderDTO.getId()));
-            });
-            Page<OrderDTO> orderDTOPage = new PageImpl<OrderDTO>(orderDTOList,
-                    Utilities.getPageRequest(pageNo, pageSize, sortBy, sortDir), orderDTOList.size());
-            logger.debug(getMessageOutputParam(BL_NO, "orderDTOPage", orderDTOPage));
+            orderPage = getRepository().getOrderByUser(email, pageable);
+            List<OrderDTO> orderDTOList = getMapper().toDtoList(orderPage.getContent(), getCycleAvoidingMappingContext());
+            logger.debug(getMessageOutputParam(BL_NO, "orderPage", orderPage));
             logger.info(getMessageEnd(BL_NO, "getOrderByUser"));
             return PaginationDTO.<OrderDTO>builder()
                     .items(orderDTOList)
                     .currentPage(pageNo)
                     .pageSize(pageSize)
-                    .totalItems(orderDTOPage.getTotalElements())
-                    .itemCount(orderDTOList.size())
+                    .totalItems(orderPage.getTotalElements())
+                    .itemCount(orderPage.getNumberOfElements())
                     .totalPages(1)
                     .build();
         } catch (Exception e) {
@@ -97,6 +99,9 @@ public class OrderServiceImpl extends AbstractServiceImpl<OrderRepository, Order
         logger.info(getMessageStart(BL_NO, method));
         logger.debug(getMessageInputParam(BL_NO, "orderDTO", orderDTO));
         try {
+            if (!checkCoupon(orderDTO)) {
+                throw new SystemErrorException("Coupon không hợp lệ!");
+            }
             UserDTO userDTO = userService.findByEmail(orderDTO.getUser().getEmail());
             if (Objects.isNull(userDTO)) {
                 throw new SystemErrorException("Người dùng không tồn tại!");
@@ -122,6 +127,24 @@ public class OrderServiceImpl extends AbstractServiceImpl<OrderRepository, Order
             logger.info(getMessageEnd(BL_NO, method));
             throw new SystemErrorException(e.getMessage());
         }
+    }
+
+    private boolean checkCoupon(OrderDTO orderDTO) {
+        if (Objects.isNull(orderDTO.getCoupon())) {
+            return true; // Không có coupon thì hợp lệ
+        }
+
+        CouponDTO coupon = orderDTO.getCoupon();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"); // Định dạng ngày
+        LocalDateTime endDate = LocalDateTime.parse(coupon.getEndDate(), formatter);
+        LocalDateTime today = LocalDateTime.now();
+
+        if (endDate.isBefore(today)) {
+            throw new SystemErrorException("Coupon đã hết hạn sử dụng");
+        }
+
+        return true;
     }
 
     private Boolean checkStock(OrderItemDTO orderItemDTO, ProductItemDTO productItemDTO) {
