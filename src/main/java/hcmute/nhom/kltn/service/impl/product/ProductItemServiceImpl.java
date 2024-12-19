@@ -74,6 +74,7 @@ public class ProductItemServiceImpl
                 throw new NotFoundException("Không tim thấy sản phẩm con");
             }
             ProductItem item = getMapper().toEntity(productItemDTO, getCycleAvoidingMappingContext());
+            item.setRemovalFlag(false);
             entity = getRepository().save(item);
             ProductItemDTO updatedProductItem = getMapper().toDto(entity, getCycleAvoidingMappingContext());
             logger.debug(getMessageOutputParam(BL_NO, "updatedProductItem", updatedProductItem));
@@ -114,7 +115,7 @@ public class ProductItemServiceImpl
         if (Objects.isNull(dto)) {
             throw new SystemErrorException("Save not success. DTO is null");
         } else if (Objects.nonNull(getRepository().findByColorAndSizeAndProductId(dto.getProduct().getId(), dto.getColor().getName(), dto.getSize()))) {
-            throw new SystemErrorException("Save not success");
+            throw new SystemErrorException("Save not success. Product item is exist");
         }
         dto.setRemovalFlag(false);
         ProductItem item = getMapper().toEntity(dto, getCycleAvoidingMappingContext());
